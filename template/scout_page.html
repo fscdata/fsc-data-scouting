@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Collect Data</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <form action="/scout/add_data" method="POST" onsubmit="return validate()">
+
+            <input type="text" name="match_number" placeholder="Match Number" size="15">
+            <input type="text" name="team_number" placeholder="Team Number" size="15">
+            <br />
+            <input type="textbox" name="notes" placeholder="Strategy & Misc" size="30">
+            <hr />
+
+            <h3>Auto Scoring</h3>
+
+            <label for="start_position">Start Position</label>
+            <select name="start_position" id="start_position">
+                <option value="red">red barge</option>
+                <option value="mid">mid barge</option>
+                <option value="blue">blue barge</option>
+            </select>
+            
+            <br />
+            <br />
+            <input type="checkbox" id="auto_leave" name="auto_leave" value="auto_leave">
+            <label for="auto_leave">Leave starting zone?</label>
+            <br />
+            <input type="checkbox" id="auto_score_preload" name="auto_score_preload" value="auto_score_preload">
+            <label for="auto_score_preload">Preload scored?</label>
+            <br />
+            <br />
+
+            <div>Coral scored on reef position:</div>
+            <br />
+            <label for="auto_reefL1">L1:</label>
+            <input class="numbox" type="number" id="auto_reefL1" name="auto_reefL1" value="0" min="0">
+            <button class="minus" onclick="decrement('auto_reefL1')">-</button>
+            <button class="plus" onclick="increment('auto_reefL1')">+</button>
+            &nbsp;&nbsp;&nbsp;
+            <label for="auto_reefL2">L2:</label>
+            <input class="numbox" type="number" id="auto_reefL2" name="auto_reefL2" value="0" min="0">
+            <button class="minus" onclick="decrement('auto_reefL2')">-</button>
+            <button class="plus" onclick="increment('auto_reefL2')">+</button>
+            <br />
+            <br />
+            <label for="auto_reefL3">L3:</label>
+            <input class="numbox" type="number" id="auto_reefL3" name="auto_reefL3" value="0" min="0">
+            <button class="minus" onclick="decrement('auto_reefL3')">-</button>
+            <button class="plus" onclick="increment('auto_reefL3')">+</button>
+            &nbsp;&nbsp;&nbsp;
+            <label for="auto_reefL4">L4:</label>
+            <input class="numbox" type="number" id="auto_reefL4" name="auto_reefL4" value="0" min="0">
+            <button class="minus" onclick="decrement('auto_reefL4')">-</button>
+            <button class="plus" onclick="increment('auto_reefL4')">+</button>
+                
+            <br />
+            <br />
+            <label for="auto_algae_knockoff">Algae removed:</label>
+            <input class="numbox" type="number" id="auto_algae_knockoff" name="auto_algae_knockoff" value="0" min="0">
+            <button class="minus" onclick="decrement('auto_algae_knockoff')">-</button>
+            <button class="plus" onclick="increment('auto_algae_knockoff')">+</button>
+            <br />
+            <br />
+            <label for="auto_score_algae_net">Algae scored NET:</label>
+            <input class="numbox" type="number" id="auto_score_algae_net" name="auto_score_algae_net" value="0" min="0">
+            <button class="minus" onclick="decrement('auto_score_algae_net')">-</button>
+            <button class="plus" onclick="increment('auto_score_algae_net')">+</button>
+            &nbsp;&nbsp;&nbsp;
+            <br />
+            <label for="auto_score_algae_proc">Algae scored PROCESSOR:</label>
+            <input class="numbox" type="number" id="auto_score_algae_proc" name="auto_score_algae_proc" value="0" min="0">
+            <button class="minus" onclick="decrement('auto_score_algae_proc')">-</button>
+            <button class="plus" onclick="increment('auto_score_algae_proc')">+</button>
+
+
+            <br />
+            <br />
+
+            <input type="checkbox" id="auto_astop" name="auto_astop" value="auto_astop">
+            <label for="auto_astop">Hit A-Stop?</label>
+
+            &nbsp; &nbsp;
+            <input type="checkbox" id="auto_failed" name="auto_failed" value="auto_failed">
+            <label for="auto_failed">failed auto? </label>
+
+            <hr />
+
+
+            <h3>Teleop Scoring</h3>
+            Algae Scored NET:
+            <input class="numbox" type="number" id="teleop_score_algae_net" name="teleop_score_algae_net" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_score_algae_net')">-</button>
+            <button class="plus" onclick="increment('teleop_score_algae_net')">+</button>
+            <br />
+            Algae Scored PROCESSOR:
+            <input class="numbox" type="number" id="teleop_score_algae_proc" name="teleop_score_algae_proc" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_score_algae_proc')">-</button>
+            <button class="plus" onclick="increment('teleop_score_algae_proc')">+</button>
+            <br />
+            <label for="teleop_algae_knockoff">Algae knocked off:</label>
+            <input class="numbox" type="number" id="teleop_algae_knockoff" name="teleop_algae_knockoff" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_algae_knockoff')">-</button>
+            <button class="plus" onclick="increment('teleop_algae_knockoff')">+</button>
+            &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+            <br />
+
+            Coral Scored:
+            <!-- REMOVED "teleop_spkr"-->
+            <br />
+            <label for="teleop_reefL1">Reef L1:</label>
+            <input class="numbox" type="number" id="teleop_reefL1" name="teleop_reefL1" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_reefL1')">-</button>
+            <button class="plus" onclick="increment('teleop_reefL1')">+</button>
+            &nbsp;&nbsp;&nbsp;
+            <label for="teleop_reefL2">Reef L2:</label>
+            <input class="numbox" type="number" id="teleop_reefL2" name="teleop_reefL2" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_reefL2')">-</button>
+            <button class="plus" onclick="increment('teleop_reefL2')">+</button>
+            <br />
+            <br />
+            <label for="teleop_reefL3">Reef L3:</label>
+            <input class="numbox" type="number" id="teleop_reefL3" name="teleop_reefL3" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_reefL3')">-</button>
+            <button class="plus" onclick="increment('teleop_reefL3')">+</button>
+            &nbsp;&nbsp;&nbsp;
+            <label for="teleop_reefL4">Reef L4:</label>
+            <input class="numbox" type="number" id="teleop_reefL4" name="teleop_reefL4" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_reefL4')">-</button>
+            <button class="plus" onclick="increment('teleop_reefL4')">+</button>
+            
+            <br />
+            <br />
+            Missed Coral:
+            <input class="numbox" type="number" id="teleop_coral_miss" name="teleop_coral_miss" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_coral_miss')">-</button>
+            <button class="plus" onclick="increment('teleop_coral_miss')">+</button>
+            &nbsp;&nbsp;&nbsp;
+
+            <br />
+            <input type="checkbox" id="coopertition" name="coopertition" value="coopertition">
+            <label for="coopertition">Coopertition</label>
+            <hr />
+
+        <h3>Endgame</h3>
+            <input type="checkbox" id="parked" name="parked" value="parked">
+            <label for="parked">Parked?</label>
+            <br />
+            <br />
+
+            <hr />
+            <h3>RPs & issues</h3>
+            
+            <input type="checkbox" id="RP_auto" name="RP_auto" value="RP_auto">
+            <label for="RP_auto">Auto RP?</label>
+            &nbsp; &nbsp;
+            
+            <input type="checkbox" id="RP_coral" name="RP_coral" value="RP_coral">
+            <label for="RP_coral">Coral RP?</label>
+            
+            &nbsp;&nbsp;
+            <input type="checkbox" id="RP_barge" name="RP_barge" value="RP_barge">
+            <label for="RP_barge">Barge RP?</label>
+            <br />
+            <br />
+            
+            <input type="checkbox" id="tipped" name="tipped" value="tipped">
+            <label for="tipped">Tipped?</label>
+            &nbsp;&nbsp;
+
+            <input type="checkbox" id="broken" name="broken" value="broken">
+            <label for="broken">Broken?</label>
+            <br />
+            <br />
+            
+            <input type="checkbox" id="REDcarded" name="REDcarded" value="REDcarded">
+            <label for="REDcarded">Red Carded?</label>
+            
+            <input type="checkbox" id="YELLOWcarded" name="YELLOWcarded" value="YELLOWcarded">
+            <label for="YELLOWcarded">Yellow carded?</labels>
+
+            <input type="checkbox" id="TECHfoul" name="TECHfoul" value="TECHfoul">
+            <label for="TECHfoul">Tech foul?</labels>
+            <br />
+            <hr />
+
+            take a quick screenshot, then <input class="send" type="submit" value="SEND"> your data!
+        </form>
+    </div>
+</body>
+</html>

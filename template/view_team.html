@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Data for Team {{ team_number }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <button class="send" onclick="document.location='/'">BACK TO SCOUTING!</button>
+
+        <table>
+            <tr>
+                <td>report_id</td>
+                <td>match_number</td>
+                <td>team_number
+                <td>notes</td>
+                <td>start position</td>
+                <td>tipped</td>
+                <td>REDcarded</td>
+                <td>YELLOWcarded</td>
+                <td>broken</td>
+                <td>fouls</td>
+                <td>auto mobility</td>
+                <td>auto scored preload</td>
+                <td>auto scored reefL1</td>
+                <td>auto scored reefL2</td>
+                <td>auto scored reefL3</td>
+                <td>auto scored reefL4</td>
+                <td>teleop reefL1</td>
+                <td>teleop reefL2</td>
+                <td>teleop reefL3</td>
+                <td>teleop reefL4</td>
+                <td>teleop scored algae</td>
+                <td>coopertition</td>
+                <td>amplifications</td>
+                <td>climb attempt</td>
+                <td>climb success</td>
+                <td>climb high</td>
+                <td>climb low</td>
+                <td>barge attempt</td>
+                <td>barge success</td>
+            </tr>
+        {% for score in team_scores %}
+        <tr>
+            <td>{{score[0]}}</td>
+            <td>{{score[1]}}</td>
+            <td>{{score[2]}}</td>
+            <td>{{score[3]}}</td>
+            <td>{{score[4]}}</td>
+            <td>{{score[5]}}</td>
+            <td>{{score[6]}}</td>
+            <td>{{score[7]}}</td>
+            <td>{{score[8]}}</td>
+            <td>{{score[9]}}</td>
+            <td>{{score[10]}}</td>
+            <td>{{score[11]}}</td>
+            <td>{{score[12]}}</td>
+            <td>{{score[13]}}</td>
+            <td>{{score[14]}}</td>
+            <td>{{score[15]}}</td>
+            <td>{{score[16]}}</td>
+            <td>{{score[17]}}</td>
+            <td>{{score[18]}}</td>
+            <td>{{score[19]}}</td>
+            <td>{{score[20]}}</td>
+            <td>{{score[21]}}</td>
+            <td>{{score[22]}}</td>
+            <td>{{score[23]}}</td>
+            <td>{{score[24]}}</td>
+            <td>{{score[25]}}</td>
+            <td>{{score[26]}}</td>
+            <td>{{score[27]}}</td>
+            <td>{{score[28]}}</td>
+            <td>{{score[29]}}</td>
+            <td>{{score[30]}}</td>
+            <td>{{score[31]}}</td>
+            <td>{{score[32]}}</td>
+            <td>{{score[33]}}</td>
+        </tr>
+
+        {% endfor %}
+        </table>
+
+    </div>
+</body>
+</html>
+

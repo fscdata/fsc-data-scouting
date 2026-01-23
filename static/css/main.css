@@ -1,0 +1,55 @@
+.labelText {   
+  color: blue;
+  margin-top: -50%;
+  vertical-align: middle;
+}
+.labelClear {
+  color: blue;
+  clear: left;
+}
+
+.wrapperDiv {
+  width: 100%;
+  background-color: transparent;
+  text-align: center;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+.tableDiv {
+  display: table;
+  border: 1px outset gray;
+  text-align: center;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+td, th {
+  border: 1px solid darkgray;
+}
+.numbox {
+  width: 2.5em;
+  border: 0px;
+  background-color: transparent;
+}
+.minus {
+  border: 1px solid blue;
+  border-radius: 6px 0px 0px 6px;
+  margin: 0px;
+  width: 1.5em;
+}
+.plus {
+  border: 1px solid blue;
+  border-radius: 0px 6px 6px 0px;
+  margin: 0px;
+  width: 1.5em;
+}
+.send {
+  margin: 0.25em;
+  color: blue;
+  border: 1px solid;
+  background-color: transparent;
+}
+table {
+  border: 0px;
+}
+
+@media screen and (max-width: 480px) {
+  font-size: 10px; /* Smaller */
+}

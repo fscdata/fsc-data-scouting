@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Data Export</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <hr />
+    Climb data so far...
+
+    <hr />
+    {% for event in event_list %}
+    <strong>{{event}}</strong>
+
+    <table class="tableDiv">
+        <tr>
+            <td>team</td>
+            <td>deep climb</td>
+        </tr>
+        {% for team in summary_deep_data[event] %}
+        <tr>
+            <td>{{summary_deep_data[event][team]['number']}}</td>
+            <td>{{summary_deep_data[event][team]['times_deep']}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endfor %}
+
+    <hr />
+    {% for event in event_list %}
+    <strong>{{event}}</strong>
+
+    <table class="tableDiv">
+        <tr>
+            <td>team</td>
+            <td>parked</td>
+            <td>shallow climb</td>
+            <td>deep climb</td>
+            <td>pct deep success</td>
+        </tr>
+        {% for team in summary_data[event] %}
+        <tr>
+            <td>{{summary_data[event][team]['number']}}</td>
+            <td>{{summary_data[event][team]['times_parked']}}</td>
+            <td>{{summary_data[event][team]['times_shallow']}}</td>
+            <td>{{summary_data[event][team]['times_deep']}}</td>
+            <td>
+            {% if summary_data[event][team]['times_deep'] > 0 %}
+                {% set deep_pct = summary_data[event][team]['times_deep'] / summary_data[event][team]['times_parked'] %}
+                {{'%0.2f' % deep_pct|float}}
+            {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endfor %}
+
+    <!-- <hr />
+    <table class="tableDiv">
+        <tr>
+            <td>event</td>
+            <td>match</td>
+            <td>team</td>
+            <td>parked</td>
+            <td>shallow climb</td>
+            <td>deep climb</td>
+        </tr>
+    {% for climb in climb_data %}
+        <tr>
+            <td>{{climb[0]}}</td>
+            <td>{{climb[1]}}</td>
+            <td>{{climb[2]}}</td>
+            <td>{{climb[3]}}</td>
+            <td>{{climb[4]}}</td>
+            <td>{{climb[5]}}</td>
+        </tr>
+    {% endfor %}
+    </table> -->
+</body>
+</html>
+

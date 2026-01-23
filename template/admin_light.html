@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Data Check</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <h3>Matches so far...</h3>
+        {% for match in match_summary %}
+        <span>Match <strong>{{ match }}</strong>: {{ match_summary[match] | length }} Teams {{ match_summary[match] }}</span> <br />
+        {% endfor %}
+        <hr />
+        <h4>Full list of entries...</h4>
+        {% for score in score_data %}
+        <span><em>row_id {{score[0]}}:</em> match {{score[1]}}, team {{score[2]}}</span> <br />
+        {% endfor %}
+        <hr />
+        <button class="send" onclick="document.location='/'">BACK TO SCOUTING!</button>
+    </div>
+</body>
+</html>
+
