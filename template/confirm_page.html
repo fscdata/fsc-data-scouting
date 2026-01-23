@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Data</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <br />
+        <img src={{ url_for('static', filename='images/' + photo_name)}} width="150" />
+        <br />
+        Thanks for the data!
+        <br />
+        <button class="send" onclick="document.location='/'">SCOUT AGAIN!</button>
+        
+    </div>
+</body>
+</html>
+
