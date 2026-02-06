@@ -1,14 +1,16 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def hello_world():
-    name = os.environ.get("NAME", "World")
-    return f"Hello {name}! FSC Data Prototype getting set up  .........."
+def scout_page():
+    print(' > in scout page')
+    return render_template('scout_page.html')
 
 
 if __name__ == "__main__":
