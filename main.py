@@ -11,10 +11,10 @@ load_dotenv()  # Loads environment variables from .env file
 # Accessing the variables
 database_uri = os.getenv('SQLALCHEMY_DATABASE_URI')
 
+app = Flask(__name__)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-app = Flask(__name__)
 
 @app.route("/")
 def scout_page():
