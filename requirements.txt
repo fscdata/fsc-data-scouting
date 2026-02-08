@@ -1,4 +1,4 @@
-dotenv~=1.2.1
+dotenv<=0.9.9
 Flask~=3.0
 gunicorn~=23.0
 Werkzeug~=3.0
