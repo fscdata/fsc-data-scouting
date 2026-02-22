@@ -31,7 +31,7 @@ def get_db_uri():
 ## Flask app setup and routes
 app = Flask(__name__)
 
-print(get_db_uri())
+# print(get_db_uri())
 app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
 db.init_app(app)  # Initialize the SQLAlchemy database with the app
 
