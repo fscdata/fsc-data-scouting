@@ -13,7 +13,7 @@ def get_db_uri():
     db_name = os.environ.get("DB_NAME")
     instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
 
-    parsed_pwd = safe_passwd = urllib.parse.quote_plus(db_pass)
+    parsed_pwd = urllib.parse.quote_plus(db_pass)
 
     # If the instance connection name is present, connect via the Cloud SQL Auth Proxy
     if instance_connection_name:
@@ -21,7 +21,7 @@ def get_db_uri():
         # mysql+pymysql://<db_user>:<db_pass>@/<db_name>?host=/cloudsql/<instance_connection_name>
         # Note the empty host before the slash and the host parameter in the query string.
         return (
-            f"mysql+pymysql://{db_user}:{db_pass}@/"
+            f"mysql+pymysql://{db_user}:{parsed_pwd}@/"
             f"{db_name}?unix_socket=/cloudsql/{instance_connection_name}"
         )
 
