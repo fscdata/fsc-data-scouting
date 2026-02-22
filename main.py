@@ -5,14 +5,30 @@ from database_model import db, Team, MatchTeamData, MatchAllianceData, Calculati
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
-## Database setup
-SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DB_URI', 'sqlite:///scouting.db')
-##
+def get_db_uri():
+    """Constructs the database URI from environment variables."""
+    db_user = os.environ.get("DB_USER")
+    db_pass = os.environ.get("DB_PASS")
+    db_name = os.environ.get("DB_NAME")
+    instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
+
+    # If the instance connection name is present, connect via the Cloud SQL Auth Proxy
+    if instance_connection_name:
+        # The format for a Unix socket connection is:
+        # mysql+pymysql://<db_user>:<db_pass>@/<db_name>?host=/cloudsql/<instance_connection_name>
+        # Note the empty host before the slash and the host parameter in the query string.
+        return (
+            f"mysql+pymysql://{db_user}:{db_pass}@/"
+            f"{db_name}?host=/cloudsql/{instance_connection_name}"
+        )
+
+    # Fallback for local development (e.g., using a local SQLite database)
+    return os.environ.get('SQLALCHEMY_DB_URI', 'sqlite:///scouting.db')
 
 ## Flask app setup and routes
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
 db.init_app(app)  # Initialize the SQLAlchemy database with the app
 
 @app.route("/")
