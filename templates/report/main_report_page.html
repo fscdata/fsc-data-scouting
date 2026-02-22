@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>
+        <title>REPORTING: Match Data</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <br />
+        This page shows match data collected so far.
+        <br />
+        <br />
+
+        <h3>Match Records in Database</h3>
+        {% for record in match_data %}
+        <span>Match Number <strong>{{ record.match_id }}</strong>: Team Number {{ record.team_number }}</span>
+        <!-- <a href="/admin/update_frc_teams?team={{ record.team_number }}" class="btn send">Remove</a> -->
+        <br />
+        {% endfor %}
+        <hr />
+        <h4>Add a New Team</h4>
+
+        <!-- <form action="/admin/addto_frc_teams" method="POST" onsubmit="return validate()">
+            <input type="text" name="team_number" placeholder="Team Number" size="8" required>
+            <input type="text" name="team_name" placeholder="Team Name" size="30" required>
+        <input class="send" type="submit" value="ADD NEW TEAM">
+        </form> -->
+    </div>
+</body>
+</html>

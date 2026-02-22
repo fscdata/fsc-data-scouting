@@ -81,6 +81,27 @@ def add_new():
         print(f' > Successfully added scouting record to database')
         return redirect('/confirmed')
     
+## reporting pages
+@app.route("/report/")
+def report_page():
+    print(' > Rendering report page')
+    match_data = db.session.query(MatchTeamData).all()
+    return render_template('report/main_report_page.html', match_data=match_data)
+    
+@app.route("/report/event")
+def report_event_page():
+    print(' > Rendering calculated data')
+    # query only match data for a specific event, then calculate and display that data on the page
+    event_match_data = db.session.query(MatchTeamData)\
+        .join(MatchAllianceData, MatchTeamData.match_id == MatchAllianceData.match_id)\
+        .filter(MatchAllianceData.event_id == 1).all()
+    aggregate_data = db.session.query(Calculation)\
+        .filter(Calculation.calculation_name == 'event_climb')\
+        .first()
+    print(f' > Aggregate data for event 1: {aggregate_data.calculation_value}')
+    # match_data = db.session.query(MatchTeamData).all()
+    return render_template('report/main_report_page.html', match_data=event_match_data, aggregate_data=aggregate_data)
+    
 ## admin pages
 @app.route("/admin/maintenance_frc_teams")
 def admin_maintenance_frc_teams():
