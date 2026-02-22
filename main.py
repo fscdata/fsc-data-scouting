@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 
 from flask import Flask, render_template, request, redirect
 from database_model import db, Team, MatchTeamData, MatchAllianceData, Calculation
@@ -12,6 +13,8 @@ def get_db_uri():
     db_name = os.environ.get("DB_NAME")
     instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
 
+    parsed_pwd = safe_passwd = urllib.parse.quote_plus(db_pass)
+
     # If the instance connection name is present, connect via the Cloud SQL Auth Proxy
     if instance_connection_name:
         # The format for a Unix socket connection is:
@@ -19,7 +22,7 @@ def get_db_uri():
         # Note the empty host before the slash and the host parameter in the query string.
         return (
             f"mysql+pymysql://{db_user}:{db_pass}@/"
-            f"{db_name}?host=/cloudsql/{instance_connection_name}"
+            f"{db_name}?unix_socket=/cloudsql/{instance_connection_name}"
         )
 
     # Fallback for local development (e.g., using a local SQLite database)
@@ -28,6 +31,7 @@ def get_db_uri():
 ## Flask app setup and routes
 app = Flask(__name__)
 
+print(get_db_uri())
 app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
 db.init_app(app)  # Initialize the SQLAlchemy database with the app
 
