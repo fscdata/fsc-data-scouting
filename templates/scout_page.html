@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Collect Data - FRC REBUILT (2026)</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <form action="/scout/add_data" method="POST" onsubmit="return validate()">
+            <input type="text" name="match_number" placeholder="Match Number" size="15">
+            <input type="text" name="team_number" placeholder="Team Number" size="15">
+            <br />
+            <input type="textbox" name="notes" placeholder="Strategy & Misc" size="30">
+            <br /><hr />
+
+            <!-- AUTO -->
+            <h3>Autonomous</h3>
+            <label for="start_position">Start Position</label>
+            <select name="start_position" id="start_position">
+                <option value="">--</option>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+            </select>
+            <br /><br />
+            <input type="checkbox" id="auto_score_preload" name="auto_score_preload" value="auto_score_preload">
+            <label for="auto_score_preload">Preload scored?</label>
+            <br />
+            <label for="preload_amount">Preload amount</label>
+            <input class="numbox" type="number" id="preload_amount" name="preload_amount" value="0" min="0">
+            <br /><br />
+            <input type="checkbox" id="auto_astop" name="auto_astop" value="auto_astop">
+            <label for="auto_astop">Hit A-Stop?</label>
+            <br />
+            <input type="checkbox" id="auto_failed" name="auto_failed" value="auto_failed">
+            <label for="auto_failed">Failed auto?</label>
+            <br /> <br />
+            <label for="auto_climb">Auto Climb?</label>
+            <select name="auto_climb" id="auto_climb">
+                <option value="0">did not attempt</option>
+                <option value="1">attempted</option>
+            </select>
+            <br /><hr />
+
+            <!-- TELEOP -->
+            <h3>Teleop</h3>
+            <label for="teleop_score_fuel">Fuel scored (total)</label>
+            <input class="numbox" type="number" id="teleop_score_fuel" name="teleop_score_fuel" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_score_fuel'); return false;">-</button>
+            <button class="plus" onclick="increment('teleop_score_fuel'); return false;">+</button>
+            <br />
+            <label for="teleop_fuel_miss">Fuel missed</label>
+            <input class="numbox" type="number" id="teleop_fuel_miss" name="teleop_fuel_miss" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_fuel_miss'); return false;">-</button>
+            <button class="plus" onclick="increment('teleop_fuel_miss'); return false;">+</button>
+            <br />
+            <label for="teleop_hub_active">Fuel in HUB - active</label>
+            <input class="numbox" type="number" id="teleop_hub_active" name="teleop_hub_active" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_hub_active'); return false;">-</button>
+            <button class="plus" onclick="increment('teleop_hub_active'); return false;">+</button>
+            <br />
+            <label for="teleop_hub_inactive">Fuel in HUB - inactive</label>
+            <input class="numbox" type="number" id="teleop_hub_inactive" name="teleop_hub_inactive" value="0" min="0">
+            <button class="minus" onclick="decrement('teleop_hub_inactive'); return false;">-</button>
+            <button class="plus" onclick="increment('teleop_hub_inactive'); return false;">+</button>
+            <br /><hr />
+
+            <!-- ENDGAME -->
+            <h3>Endgame</h3>
+            <label for="endgame_climb">Endgame Climb?</label>
+            <select name="endgame_climb" id="endgame_climb">
+                <option value="0">did not attempt</option>
+                <option value="1">attempted</option>
+            </select>
+            <br /><hr />
+
+            <!-- RPs -->
+            <h3>Bonus RPs & issues</h3>
+            <input type="checkbox" id="RP_energized" name="RP_energized" value="RP_energized">
+            <label for="RP_energized">Energized RP?</label>
+            <br />
+            <input type="checkbox" id="RP_supercharged" name="RP_supercharged" value="RP_supercharged">
+            <label for="RP_supercharged">Supercharged RP?</label>
+            <br />
+            <input type="checkbox" id="RP_traversal" name="RP_traversal" value="RP_traversal">
+            <label for="RP_traversal">Traversal RP?</label>
+            <br /><hr />
+
+            <!-- MISC -->
+            <input type="checkbox" id="tipped" name="tipped" value="tipped">
+            <label for="tipped">Tipped?</label>
+            <br />
+            <input type="checkbox" id="broken" name="broken" value="broken">
+            <label for="broken">Broken?</label>
+            <br />
+            <input type="checkbox" id="REDcarded" name="REDcarded" value="REDcarded">
+            <label for="REDcarded">Red carded?</label>
+            <br />
+            <input type="checkbox" id="YELLOWcarded" name="YELLOWcarded" value="YELLOWcarded">
+            <label for="YELLOWcarded">Yellow carded?</label>
+            <br />
+            <input type="checkbox" id="TECHfoul" name="TECHfoul" value="TECHfoul">
+            <label for="TECHfoul">Tech foul?</label>
+            <br />
+            <hr />
+
+            take a quick screenshot, then <input class="send" type="submit" value="SEND"> your data!
+        </form>
+    </div>
+</body>
+</html>
