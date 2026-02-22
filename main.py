@@ -20,20 +20,23 @@ def home_page():
     print(' > Rendering home page')
     return render_template('home_page.html')
 
-@app.route("/scout/")
-def scout_page():
-    print(' > Rendering scout page')
-    return render_template('scout_page.html')
-
 @app.route("/confirmed")
 def confirmation_page():
     print(' > Rendering confirmation page')
     return render_template('confirm_page.html')
 
+## scouting pages
+@app.route("/scout/")
+def scout_page():
+    print(' > Rendering scout page')
+    return render_template('scout_page.html')
+
 @app.route('/scout/add_data', methods = ['POST'])
 def add_new():
     if request.method == 'POST':
         print(request.form)
+        form_dict = request.form.to_dict(flat=False)
+        print(form_dict)
 
         # capture fields from form
         new_record_data = {
@@ -58,6 +61,48 @@ def add_new():
 
         print(f' > Successfully added scouting record to database')
         return redirect('/confirmed')
+    
+## admin pages
+@app.route("/admin/maintenance_frc_teams")
+def admin_maintenance_frc_teams():
+    print(' > Rendering admin FRC teams maintenance page')
+    team_data = db.session.query(Team.team_id, Team.team_name).all()
+    return render_template('admin/maintenance_frc_teams.html', team_data=team_data)
+
+@app.route("/admin/addto_frc_teams", methods=['POST'])
+def add_new_team():
+    if request.method == 'POST':
+        print(request.form)
+        form_dict = request.form.to_dict(flat=False)
+        print(form_dict)
+
+        # capture fields from form
+        new_team_data = {
+            'team_id': int(request.form.get('team_number', 0)),
+            'team_name': request.form.get('team_name', ''),
+        }
+
+        # Filter out keys that are not in the Team model
+        valid_keys = [c.name for c in Team.__table__.columns]
+        filtered_data = {k: v for k, v in new_team_data.items() if k in valid_keys}
+
+        new_team_record = Team(**filtered_data)
+
+        db.session.add(new_team_record)
+        db.session.commit()
+
+        print(f' > Successfully added team to database')
+        return redirect('/admin/maintenance_frc_teams')
+
+@app.route("/admin/update_frc_teams")
+def update_frc_teams():
+    team_number = request.args.get('team', 0)
+    print(f' > Attempting to remove team {team_number}')
+    db.session.query(Team).filter(Team.team_id == team_number).delete()
+    db.session.commit()
+    print(f' > Successfully removed team {team_number}')
+    return redirect('/admin/maintenance_frc_teams')
+
 ##
 
 ## Main execution of app
