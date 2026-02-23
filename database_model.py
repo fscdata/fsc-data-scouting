@@ -8,6 +8,14 @@ class Team(db.Model):
     team_id = Column(Integer, primary_key=True)
     team_name = Column(String(100), nullable=False)
 
+class Event(db.Model):
+    __tablename__ = 'events'
+    event_id = Column(Integer, primary_key=True)
+    event_code = Column(String(10), nullable=False)
+    event_name = Column(String(100), nullable=False)
+    event_date = Column(String(20), nullable=False)
+    event_currently_active = Column(Boolean, nullable=False)
+
 class MatchTeamData(db.Model):
     __tablename__ = 'match_data'
     record_id = Column(Integer, primary_key=True)
@@ -33,7 +41,7 @@ class MatchTeamData(db.Model):
 class MatchAllianceData(db.Model):
     __tablename__ = 'event_match'
     match_id = Column(Integer, primary_key=True)
-    event_id = Column(Integer)
+    event_id = Column(Integer, ForeignKey('events.event_id'))
     match_type = Column(String(50))
     match_number = Column(Integer)
     red_1_id = Column(Integer, ForeignKey('frc_teams.team_id'))
