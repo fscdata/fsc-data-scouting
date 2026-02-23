@@ -12,20 +12,77 @@
         This page shows match data collected so far.
         <br />
         <br />
+        <form action="/report/" method="POST">
+            <label for="event_id">Event code:</label>
+            <!-- Dropdown menu generated from available event names -->
+            <select id="event_id" name="event_id">
+                {% for event in event_list %}
+                <option value="{{ event.event_id }}"
+                    {% if event.event_currently_active %} selected{% endif%}
+                >{{ event.event_code }}</option>
+                {% endfor %}
+            </select>
 
-        <h3>Match Records in Database</h3>
-        {% for record in match_data %}
-        <span>Match Number <strong>{{ record.match_id }}</strong>: Team Number {{ record.team_number }}</span>
-        <!-- <a href="/admin/update_frc_teams?team={{ record.team_number }}" class="btn send">Remove</a> -->
-        <br />
-        {% endfor %}
+            <input type="submit" value="Switch Event" />
+        </form>
+
+        <h3>Match Data Recorded for {{ display_event_name }}</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Record ID</th>
+                    <th>Match ID</th>
+                    <th>Team Number</th>
+                    <th>Auto Fuel Score</th>
+                    <th>Auto Climb Try</th>
+                    <th>Auto Climbed</th>
+                    <th>Auto Traveled</th>
+                    <th>Teleop Fuel Score</th>
+                    <th>Teleop Traveled</th>
+                    <th>Teleop Climb Try</th>
+                    <th>Teleop Climb Level</th>
+                    <th>Match Fouls</th>
+                    <th>Match Card</th>
+                    <th>Match Tipped</th>
+                    <th>Match Broke</th>
+                    <th>Match Disabled</th>
+                    <th>Match Absent</th>
+                    <th>Calc Auto Score</th>
+                    <th>Calc Teleop Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in match_data %}
+                <tr>
+                    <td>{{ record.record_id }}</td>
+                    <td>{{ record.match_id }}</td>
+                    <td>{{ record.team_number }}</td>
+                    <td>{{ record.auto_fuel_score }}</td>
+                    <td>{{ record.auto_climb_try }}</td>
+                    <td>{{ record.auto_climbed }}</td>
+                    <td>{{ record.auto_traveled }}</td>
+                    <td>{{ record.teleop_fuel_score }}</td>
+                    <td>{{ record.teleop_traveled }}</td>
+                    <td>{{ record.teleop_climb_try }}</td>
+                    <td>{{ record.teleop_climb_level }}</td>
+                    <td>{{ record.match_fouls }}</td>
+                    <td>{{ record.match_card }}</td>
+                    <td>{{ record.match_tipped }}</td>
+                    <td>{{ record.match_broke }}</td>
+                    <td>{{ record.match_disabled }}</td>
+                    <td>{{ record.match_absent }}</td>
+                    <td>{{ record.calc_auto_score }}</td>
+                    <td>{{ record.calc_teleop_score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         <hr />
 
-        <!-- <form action="/admin/addto_frc_teams" method="POST" onsubmit="return validate()">
-            <input type="text" name="team_number" placeholder="Team Number" size="8" required>
-            <input type="text" name="team_name" placeholder="Team Name" size="30" required>
-        <input class="send" type="submit" value="ADD NEW TEAM">
-        </form> -->
+
+
+
+
     </div>
 </body>
 </html>

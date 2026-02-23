@@ -2,7 +2,7 @@ import os
 import urllib.parse
 
 from flask import Flask
-from database_model import db
+from database_model import db, Event
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -51,7 +51,7 @@ app.register_blueprint(admin_bp)
 def init_db():
     """Create all database tables."""
     # import model classes to register with SQLAlchemy metadata
-    from database_model import Team, Event, MatchTeamData, MatchAllianceData, Calculation
+    from database_model import Team, Event, MatchTeamData, MatchData, Calculation
 
     # Run create_all inside the app context to ensure proper configuration
     with app.app_context():

@@ -17,9 +17,10 @@ class Event(db.Model):
     event_currently_active = Column(Boolean, nullable=False)
 
 class MatchTeamData(db.Model):
-    __tablename__ = 'match_data'
+    __tablename__ = 'match_team_data'
     record_id = Column(Integer, primary_key=True)
-    match_id = Column(Integer, ForeignKey('event_match.match_id'))
+    event_id = Column(Integer, ForeignKey('events.event_id'))
+    match_id = Column(Integer, ForeignKey('match_data.match_id'))
     team_number = Column(Integer, ForeignKey('frc_teams.team_id'))
     auto_fuel_score = Column(Integer)
     auto_climb_try = Column(Boolean)
@@ -38,8 +39,8 @@ class MatchTeamData(db.Model):
     calc_auto_score = Column(Integer)
     calc_teleop_score = Column(Integer)
 
-class MatchAllianceData(db.Model):
-    __tablename__ = 'event_match'
+class MatchData(db.Model):
+    __tablename__ = 'match_data'
     match_id = Column(Integer, primary_key=True)
     event_id = Column(Integer, ForeignKey('events.event_id'))
     match_type = Column(String(50))
