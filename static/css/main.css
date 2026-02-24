@@ -8,6 +8,30 @@
   clear: left;
 }
 
+.menuLink {
+  color: gray;
+  text-decoration: none;
+  margin: 0.25em;
+}
+.menuDiv {
+  width: 10%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+.menuHorizontalDiv {
+  width: 100%;
+  background-color: transparent;
+  text-align: center;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+
+.infoDiv {
+  width: 80%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
 .wrapperDiv {
   width: 100%;
   background-color: transparent;

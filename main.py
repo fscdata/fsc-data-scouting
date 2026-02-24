@@ -39,11 +39,13 @@ from routes.main_routes import bp as main_bp
 from routes.scout_routes import bp as scout_bp
 from routes.report_routes import bp as report_bp
 from routes.admin_routes import bp as admin_bp
+from routes.info_routes import bp as info_bp
 
 app.register_blueprint(main_bp)
 app.register_blueprint(scout_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(info_bp)
 ##
 
 ## Main execution of app
