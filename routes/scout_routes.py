@@ -8,8 +8,9 @@ def scout_page():
     active_event_id = db.session.query(Event.event_id).filter(Event.event_currently_active == 1).scalar()
     print(f'Active event ID for new scouting record: {active_event_id}')
     if active_event_id is None:
-        print(' > No active event found. Please find a Scouting Alliance admin to set an active event.')
-        return render_template('no_active_event.html')
+        error_message = 'No active event found. Please find a Scouting Alliance admin to set an active event.'
+        print(f' ! {error_message}')
+        return render_template('error.html', error_message=error_message)
     print(' > Rendering scout page')
     return render_template('scout_page.html')
 
