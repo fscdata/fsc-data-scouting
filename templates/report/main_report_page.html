@@ -30,23 +30,23 @@
         <table border="1">
             <thead>
                 <tr>
-                    <th>Record ID</th>
+                    <!-- <th>Record ID</th> -->
                     <th>Match ID</th>
                     <th>Team Number</th>
-                    <th>Auto Fuel Score</th>
-                    <th>Auto Climb Try</th>
-                    <th>Auto Climbed</th>
-                    <th>Auto Traveled</th>
+                    <th class="reportTableAuto">Auto Fuel Score</th>
+                    <th class="reportTableAuto">Auto Climb Attempt</th>
+                    <th class="reportTableAuto">Auto Climbed</th>
+                    <th class="reportTableAuto">Auto Traveled</th>
                     <th>Teleop Fuel Score</th>
                     <th>Teleop Traveled</th>
-                    <th>Teleop Climb Try</th>
+                    <th>Teleop Climb Attempt</th>
                     <th>Teleop Climb Level</th>
-                    <th>Match Fouls</th>
-                    <th>Match Card</th>
-                    <th>Match Tipped</th>
-                    <th>Match Broke</th>
-                    <th>Match Disabled</th>
-                    <th>Match Absent</th>
+                    <th class="reportTableAuto">Match Fouls</th>
+                    <th class="reportTableAuto">Match Card</th>
+                    <th class="reportTableAuto">Match Tipped</th>
+                    <th class="reportTableAuto">Match Broke</th>
+                    <th class="reportTableAuto">Match Disabled</th>
+                    <th class="reportTableAuto">Match Absent</th>
                     <th>Calc Auto Score</th>
                     <th>Calc Teleop Score</th>
                 </tr>
@@ -54,23 +54,23 @@
             <tbody>
                 {% for record in match_data %}
                 <tr>
-                    <td>{{ record.record_id }}</td>
+                    <!-- <td>{{ record.record_id }}</td> -->
                     <td>{{ record.match_id }}</td>
                     <td>{{ record.team_number }}</td>
-                    <td>{{ record.auto_fuel_score }}</td>
-                    <td>{{ record.auto_climb_try }}</td>
-                    <td>{{ record.auto_climbed }}</td>
-                    <td>{{ record.auto_traveled }}</td>
+                    <td class="reportTableAuto">{{ record.auto_fuel_score }}</td>
+                    <td class="reportTableAuto">{{ record.auto_climb_try }}</td>
+                    <td class="reportTableAuto">{{ record.auto_climbed }}</td>
+                    <td class="reportTableAuto">{{ record.auto_traveled }}</td>
                     <td>{{ record.teleop_fuel_score }}</td>
                     <td>{{ record.teleop_traveled }}</td>
                     <td>{{ record.teleop_climb_try }}</td>
                     <td>{{ record.teleop_climb_level }}</td>
-                    <td>{{ record.match_fouls }}</td>
-                    <td>{{ record.match_card }}</td>
-                    <td>{{ record.match_tipped }}</td>
-                    <td>{{ record.match_broke }}</td>
-                    <td>{{ record.match_disabled }}</td>
-                    <td>{{ record.match_absent }}</td>
+                    <td class="reportTableAuto">{{ record.match_fouls }}</td>
+                    <td class="reportTableAuto">{{ record.match_card }}</td>
+                    <td class="reportTableAuto">{{ record.match_tipped }}</td>
+                    <td class="reportTableAuto">{{ record.match_broke }}</td>
+                    <td class="reportTableAuto">{{ record.match_disabled }}</td>
+                    <td class="reportTableAuto">{{ record.match_absent }}</td>
                     <td>{{ record.calc_auto_score }}</td>
                     <td>{{ record.calc_teleop_score }}</td>
                 </tr>

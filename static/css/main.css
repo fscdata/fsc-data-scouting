@@ -9,7 +9,7 @@
 }
 
 .menuLink {
-  color: gray;
+  color: darkgray;
   text-decoration: none;
   margin: 0.25em;
 }
@@ -22,7 +22,7 @@
 .menuHorizontalDiv {
   width: 100%;
   background-color: transparent;
-  text-align: center;
+  text-align: left;
   font-family: Calibri, Helvetica, sans-serif;
 }
 
@@ -72,6 +72,9 @@ td, th {
 }
 table {
   border: 0px;
+}
+.reportTableAuto {
+  background: lightgray;
 }
 
 @media screen and (max-width: 480px) {
