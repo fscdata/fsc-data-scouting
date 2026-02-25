@@ -8,7 +8,7 @@ from flask import Flask
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
-from database_model import db, Event, Team, MatchAllianceData
+from database_model import db, Event, MatchData
 
 # Create a minimal Flask app for database access
 app = Flask(__name__)
@@ -22,10 +22,26 @@ if not first_api_username or not first_api_key:
     exit(1)
 first_api_base_url = 'https://frc-api.firstinspires.org/v3.0'
 
-def check_match_data(event_year, event_name, match_level, match_number):
-    match_schedule_url = f'{first_api_base_url}/{event_year}/matches/{event_name}?tournamentLevel={match_level}&matchNumber={match_number}'
+def find_next_match_to_query(event_code: str):
+    with app.app_context():
+        # query events table to find event_id
+        event_id = db.session.query(Event.event_id).filter(Event.event_code == event_code).scalar()
+        # query maximum match_id for the given event_id
+        max_match_id = db.session.query(db.func.max(MatchData.match_id)).filter(MatchData.event_id == event_id).scalar()
 
-    single_match_scores_url = f'{first_api_base_url}/{event_year}/scores/{event_name}/{match_level}?matchNumber={match_number}'
+        if max_match_id is not None:
+            print(f'Most recent match data for event {event_id}: Match {max_match_id}')
+            next_match_id = max_match_id + 1
+            print(f'Next match to query for event {event_id}: Match {next_match_id}')
+            return next_match_id
+        else:
+            print(f'No match data found yet for event {event_id}.')
+            return 1
+
+def api_call_match_data(event_year, event_code, match_level, match_number):
+    match_schedule_url = f'{first_api_base_url}/{event_year}/matches/{event_code}?tournamentLevel={match_level}&matchNumber={match_number}'
+
+    single_match_scores_url = f'{first_api_base_url}/{event_year}/scores/{event_code}/{match_level}?matchNumber={match_number}'
 
     # encode the token in base 64
     encoded_token = base64.b64encode(bytes('fscdata:fcc8c8e6-12b2-4d89-8e14-3141f969c8d5', 'utf-8'))
@@ -59,6 +75,7 @@ def check_match_data(event_year, event_name, match_level, match_number):
 
     if not schedule_dict:
         print(f'Match {match_number} not found in schedule data, validate it is completed and posted.')
+        return
     else:
         for i in range(6):
             team_record = schedule_dict['teams'][i]
@@ -75,13 +92,6 @@ def check_match_data(event_year, event_name, match_level, match_number):
                 blue_2_id = team_record['teamNumber']
             elif team_record['station'] == 'Blue3':
                 blue_3_id = team_record['teamNumber']
-
-        print(f'Red 1: {red_1_id}')
-        print(f'Red 2: {red_2_id}')
-        print(f'Red 3: {red_3_id}')
-        print(f'Blue 1: {blue_1_id}')
-        print(f'Blue 2: {blue_2_id}')
-        print(f'Blue 3: {blue_3_id}')
 
     match_dict = single_match_score_data['MatchScores'][0]
 
@@ -105,9 +115,7 @@ def check_match_data(event_year, event_name, match_level, match_number):
         return
 
     red_rp = red_dict['rp']
-    print(f'Red RP: {red_rp}')
     blue_rp = blue_dict['rp']
-    print(f'Blue RP: {blue_rp}')
 
     if not 'hubScore' in red_dict or not 'hubScore' in blue_dict:
         print('hubScore data not found for both alliances, validate match is completed and posted.')
@@ -115,13 +123,9 @@ def check_match_data(event_year, event_name, match_level, match_number):
         print(blue_dict)
         return
     red_auto_score = red_dict['hubScore']['autoPoints']
-    print(f'Red Auto Score: {red_auto_score}')
     blue_auto_score = blue_dict['hubScore']['autoPoints']
-    print(f'Blue Auto Score: {blue_auto_score}')
     red_teleop_score = red_dict['hubScore']['teleopPoints']
-    print(f'Red Teleop Score: {red_teleop_score}')
     blue_teleop_score = blue_dict['hubScore']['teleopPoints']
-    print(f'Blue Teleop Score: {blue_teleop_score}')
 
     red_1_auto_climb = red_dict['autoTowerRobot1']
     blue_1_auto_climb = blue_dict['autoTowerRobot1']
@@ -129,8 +133,6 @@ def check_match_data(event_year, event_name, match_level, match_number):
     blue_2_auto_climb = blue_dict['autoTowerRobot2']
     red_3_auto_climb = red_dict['autoTowerRobot3']
     blue_3_auto_climb = blue_dict['autoTowerRobot3']
-    print(f'Red Auto Climb: 1 {red_1_auto_climb}, 2 {red_2_auto_climb}, 3 {red_3_auto_climb}')
-    print(f'Blue Auto Climb: 1 {blue_1_auto_climb}, 2 {blue_2_auto_climb}, 3 {blue_3_auto_climb}')
 
     red_1_endgame_climb = red_dict['endGameTowerRobot1']
     red_2_endgame_climb = red_dict['endGameTowerRobot2']
@@ -138,14 +140,17 @@ def check_match_data(event_year, event_name, match_level, match_number):
     blue_1_endgame_climb = blue_dict['endGameTowerRobot1']
     blue_2_endgame_climb = blue_dict['endGameTowerRobot2']
     blue_3_endgame_climb = blue_dict['endGameTowerRobot3']
-    print(f'Red Endgame Climb: 1 {red_1_endgame_climb}, 2 {red_2_endgame_climb}, 3 {red_3_endgame_climb}')
-    print(f'Blue Endgame Climb: 1 {blue_1_endgame_climb}, 2 {blue_2_endgame_climb}, 3 {blue_3_endgame_climb}')
 
     # push data to database for storage
     with app.app_context():
-        match_record = MatchAllianceData(
-            match_id=match_number,
-            event_id=1,  # TODO: map event_name to event_id
+        event_id = db.session\
+            .query(Event.event_id)\
+            .filter(Event.event_code == event_code)\
+            .scalar()
+
+        match_record = MatchData(
+            event_id=event_id,
+            match_number=match_number,
             match_type=match_type,
             red_1_id=red_1_id,
             red_2_id=red_2_id,
@@ -158,11 +163,33 @@ def check_match_data(event_year, event_name, match_level, match_number):
             red_auto_score=red_auto_score,
             red_teleop_score=red_teleop_score,
             blue_auto_score=blue_auto_score,
-            blue_teleop_score=blue_teleop_score
+            blue_teleop_score=blue_teleop_score,
+            red_1_auto_climb=red_1_auto_climb,
+            red_2_auto_climb=red_2_auto_climb,
+            red_3_auto_climb=red_3_auto_climb,
+            blue_1_auto_climb=blue_1_auto_climb,
+            blue_2_auto_climb=blue_2_auto_climb,
+            blue_3_auto_climb=blue_3_auto_climb,
+            red_1_endgame_climb=red_1_endgame_climb,
+            red_2_endgame_climb=red_2_endgame_climb,
+            red_3_endgame_climb=red_3_endgame_climb,
+            blue_1_endgame_climb=blue_1_endgame_climb,
+            blue_2_endgame_climb=blue_2_endgame_climb,
+            blue_3_endgame_climb=blue_3_endgame_climb,
         )
         db.session.add(match_record)
         db.session.commit()
         print(f'Match data for match {match_number} successfully added to database.')
 
 if __name__ == "__main__":
-    check_match_data(2026, 'WEEK0', 'Qualification', 5)
+    event_year = 2026
+    event_code = 'WEEK0'
+    match_level = 'Qualification'
+
+    next_match_id = find_next_match_to_query(event_code = 'WEEK0')
+
+    api_call_match_data(
+        event_year = event_year,
+        event_code = event_code,
+        match_level = match_level,
+        match_number = next_match_id)

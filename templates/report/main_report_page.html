@@ -1,88 +1,12 @@
-<!doctype html>
-<html>
-    <head>
-        <title>REPORTING: Match Data</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src={{ url_for('static', filename='js/main.js') }}></script>
-        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
-    </head>
-<body>
-    <div class="wrapperDiv">
-        <br />
-        This page shows match data collected so far.
-        <br />
-        <br />
-        <form action="/report/" method="POST">
-            <label for="event_id">Event code:</label>
-            <!-- Dropdown menu generated from available event names -->
-            <select id="event_id" name="event_id">
-                {% for event in event_list %}
-                <option value="{{ event.event_id }}"
-                    {% if event.event_currently_active %} selected{% endif%}
-                >{{ event.event_code }}</option>
-                {% endfor %}
-            </select>
+{% extends "base.html" %}
+{% block content %}
+    <h1>Match Data Reports</h1>
 
-            <input type="submit" value="Switch Event" />
-        </form>
+    <p>The Scouting Alliance data is available for any teams in the state to view. Depending on your scouting interests and preferences, you may find it useful to view the data in different ways.</p>
 
-        <h3>Match Data Recorded for {{ display_event_name }}</h3>
-        <table border="1">
-            <thead>
-                <tr>
-                    <!-- <th>Record ID</th> -->
-                    <th>Match ID</th>
-                    <th>Team Number</th>
-                    <th class="reportTableAuto">Auto Fuel Score</th>
-                    <th class="reportTableAuto">Auto Climb Attempt</th>
-                    <th class="reportTableAuto">Auto Climbed</th>
-                    <th class="reportTableAuto">Auto Traveled</th>
-                    <th>Teleop Fuel Score</th>
-                    <th>Teleop Traveled</th>
-                    <th>Teleop Climb Attempt</th>
-                    <th>Teleop Climb Level</th>
-                    <th class="reportTableAuto">Match Fouls</th>
-                    <th class="reportTableAuto">Match Card</th>
-                    <th class="reportTableAuto">Match Tipped</th>
-                    <th class="reportTableAuto">Match Broke</th>
-                    <th class="reportTableAuto">Match Disabled</th>
-                    <th class="reportTableAuto">Match Absent</th>
-                    <th>Calc Auto Score</th>
-                    <th>Calc Teleop Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in match_data %}
-                <tr>
-                    <!-- <td>{{ record.record_id }}</td> -->
-                    <td>{{ record.match_id }}</td>
-                    <td>{{ record.team_number }}</td>
-                    <td class="reportTableAuto">{{ record.auto_fuel_score }}</td>
-                    <td class="reportTableAuto">{{ record.auto_climb_try }}</td>
-                    <td class="reportTableAuto">{{ record.auto_climbed }}</td>
-                    <td class="reportTableAuto">{{ record.auto_traveled }}</td>
-                    <td>{{ record.teleop_fuel_score }}</td>
-                    <td>{{ record.teleop_traveled }}</td>
-                    <td>{{ record.teleop_climb_try }}</td>
-                    <td>{{ record.teleop_climb_level }}</td>
-                    <td class="reportTableAuto">{{ record.match_fouls }}</td>
-                    <td class="reportTableAuto">{{ record.match_card }}</td>
-                    <td class="reportTableAuto">{{ record.match_tipped }}</td>
-                    <td class="reportTableAuto">{{ record.match_broke }}</td>
-                    <td class="reportTableAuto">{{ record.match_disabled }}</td>
-                    <td class="reportTableAuto">{{ record.match_absent }}</td>
-                    <td>{{ record.calc_auto_score }}</td>
-                    <td>{{ record.calc_teleop_score }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <hr />
+    <p>The <a href="/report/export/">Export Page</a> allows you to download all of the data for a given event in a CSV file. Teams who like to slice and dice information for their own rankings and calculations should start here.</p>
 
+    <p>The Scouting Alliance has compiled some common <a href="/report/stats/">Statistics</a> for teams based on what is available. These may be useful for comparing teams or identifying trends in performance.</p>
 
-
-
-
-    </div>
-</body>
-</html>
+    <p>There are also a few display pages of <a href="/report/raw/">raw data</a>. (Not recommended for mobile devices due to large tabular displays.)</p>
+{% endblock %}

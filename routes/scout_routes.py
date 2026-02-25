@@ -31,16 +31,17 @@ def add_new():
             'team_number': int(request.form.get('team_number', 0)),
             'auto_fuel_score': int(request.form.get('auto_fuel_score', 0)),
             'auto_climb_try': bool(int(request.form.get('auto_climb_try', 0))),
-            'auto_traveled': bool(int(request.form.get('auto_traveled', 0))),
+            'auto_traveled': int(request.form.get('auto_traveled', 0)),
             'teleop_fuel_score': int(request.form.get('teleop_fuel_score', 0)),
-            'teleop_traveled': bool(int(request.form.get('teleop_traveled', 0))),
-            'teleop_climb_try': bool(int(request.form.get('teleop_climb_try', 0))),
+            'teleop_traveled': int(request.form.get('teleop_traveled', 0)),
+            'endgame_climb_try': 1 if request.form.get('endgame_climb', '0') == '1' else 0,
             'match_tipped': 'tipped' in request.form,
             'match_broke': 'broken' in request.form,
             'match_card': 'carded' in request.form,
             'match_disabled': 'disabled' in request.form,
             'match_absent': 'absent' in request.form,
         }
+        print(new_record_data)
 
         # Filter out keys that are not in the MatchTeamData model
         valid_keys = [c.name for c in MatchTeamData.__table__.columns]

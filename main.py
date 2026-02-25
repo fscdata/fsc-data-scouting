@@ -2,6 +2,7 @@ import os
 import urllib.parse
 
 from flask import Flask
+from flask_migrate import Migrate  # Add this import
 from database_model import db, Event
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
@@ -34,6 +35,9 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
 db.init_app(app)  # Initialize the SQLAlchemy database with the app
 
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)
+
 # Register blueprints
 from routes.main_routes import bp as main_bp
 from routes.scout_routes import bp as scout_bp
@@ -51,15 +55,16 @@ app.register_blueprint(info_bp)
 ## Main execution of app
 @app.cli.command("init-db")
 def init_db():
-    """Create all database tables."""
-    # import model classes to register with SQLAlchemy metadata
+    """Initialize the database with migrations (creates tables if needed, applies pending migrations)."""
+    # Import model classes to register with SQLAlchemy metadata
     from database_model import Team, Event, MatchTeamData, MatchData, Calculation
 
-    # Run create_all inside the app context to ensure proper configuration
+    # Run inside the app context
     with app.app_context():
         try:
+            # Create tables if they don't exist (for initial setup)
             db.create_all()
-            print("Initialized the database.")
+            print("Initialized the database (tables created if missing).")
         except Exception as e:
             print(f"Error initializing the database: {e}")
 

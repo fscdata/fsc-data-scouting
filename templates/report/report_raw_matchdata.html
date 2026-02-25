@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="/report/raw/" method="POST">
+        <label for="event_id">Event code:</label>
+        <!-- Dropdown menu generated from available event names -->
+        <select id="event_id" name="event_id">
+            {% for event in event_list %}
+            <option value="{{ event.event_id }}"
+                {% if event.event_currently_active %} selected{% endif%}
+            >{{ event.event_code }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="submit" value="Switch Event" />
+    </form>
+
+    <h3>Match Data Recorded for {{ display_event_name }}</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <!-- <th>Record ID</th> -->
+                <th>Match ID</th>
+                <th>Team Number</th>
+                <th class="reportTableAuto">Auto Fuel Score</th>
+                <th class="reportTableAuto">Auto Climb Attempt</th>
+                <th class="reportTableAuto">Auto Climbed</th>
+                <th class="reportTableAuto">Auto Traveled</th>
+                <th>Teleop Fuel Score</th>
+                <th>Teleop Traveled</th>
+                <th>Endgame Climb Attempt</th>
+                <th>Endgame Climb Level</th>
+                <th class="reportTableAuto">Match Fouls</th>
+                <th class="reportTableAuto">Match Card</th>
+                <th class="reportTableAuto">Match Tipped</th>
+                <th class="reportTableAuto">Match Broke</th>
+                <th class="reportTableAuto">Match Disabled</th>
+                <th class="reportTableAuto">Match Absent</th>
+                <th>Calc Auto Score</th>
+                <th>Calc Teleop Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in match_data %}
+            <tr>
+                <!-- <td>{{ record.record_id }}</td> -->
+                <td>{{ record.match_id }}</td>
+                <td>{{ record.team_number }}</td>
+                <td class="reportTableAuto">{{ record.auto_fuel_score }}</td>
+                <td class="reportTableAuto">{{ record.auto_climb_try }}</td>
+                <td class="reportTableAuto">{{ record.auto_climbed }}</td>
+                <td class="reportTableAuto">{{ record.auto_traveled }}</td>
+                <td>{{ record.teleop_fuel_score }}</td>
+                <td>{{ record.teleop_traveled }}</td>
+                <td>{{ record.endgame_climb_try }}</td>
+                <td>{{ record.endgame_climb_level }}</td>
+                <td class="reportTableAuto">{{ record.match_fouls }}</td>
+                <td class="reportTableAuto">{{ record.match_card }}</td>
+                <td class="reportTableAuto">{{ record.match_tipped }}</td>
+                <td class="reportTableAuto">{{ record.match_broke }}</td>
+                <td class="reportTableAuto">{{ record.match_disabled }}</td>
+                <td class="reportTableAuto">{{ record.match_absent }}</td>
+                <td>{{ record.calc_auto_score }}</td>
+                <td>{{ record.calc_teleop_score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr />
+{% endblock %}
