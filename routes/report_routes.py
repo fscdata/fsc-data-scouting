@@ -6,17 +6,36 @@ from database_model import db, MatchTeamData, MatchData, Event, Calculation
 
 bp = Blueprint("report", __name__, url_prefix="/report")
 
-@bp.route("/")
-def report_landing_page():
-    print(' > Rendering report landing page')
-    return render_template('report/main_report_page.html')
+@bp.route("/", methods = ['POST', 'GET'])
+def report_page():
+    print(' > Rendering report page')
+    active_event_id = db.session.query(Event.event_id).filter(Event.event_currently_active == 1).scalar()
+    
+    display_event_id = request.form.get('event_id')
+    if not display_event_id:
+        print(' > No event ID provided, defaulting to active event')
+        display_event_id = active_event_id
 
-@bp.route("/export/")
+    display_event_name = db.session.query(Event.event_name).filter(Event.event_id == display_event_id).scalar()
+
+    event_list = db.session.query(Event.event_id, Event.event_code, Event.event_currently_active).all()
+
+    all_match_data = db.session\
+        .query(MatchTeamData)\
+        .filter(MatchTeamData.event_id == display_event_id)\
+        .all()
+    return render_template(
+        'report/main_report_page.html',
+        match_data=all_match_data,
+        event_list=event_list,
+        display_event_name=display_event_name)
+
+@bp.route("/export")
 def export_data_page():
     print(' > Rendering CSV export page')
     event_list = db.session.query(Event.event_id, Event.event_code, Event.event_currently_active).all()
     return render_template(
-        'report/export_page.html',
+        'report/main_export_page.html',
         event_list=event_list)
 
 
@@ -66,30 +85,6 @@ def report_event_page():
         'report/main_report_page.html',
         match_data=event_match_data,
         aggregate_data=aggregate_data)
-
-@bp.route("/raw/", methods = ['POST', 'GET'])
-def report_page():
-    print(' > Rendering report page')
-    active_event_id = db.session.query(Event.event_id).filter(Event.event_currently_active == 1).scalar()
-    
-    display_event_id = request.form.get('event_id')
-    if not display_event_id:
-        print(' > No event ID provided, defaulting to active event')
-        display_event_id = active_event_id
-
-    display_event_name = db.session.query(Event.event_name).filter(Event.event_id == display_event_id).scalar()
-
-    event_list = db.session.query(Event.event_id, Event.event_code, Event.event_currently_active).all()
-
-    all_match_data = db.session\
-        .query(MatchTeamData)\
-        .filter(MatchTeamData.event_id == display_event_id)\
-        .all()
-    return render_template(
-        'report/report_raw_matchdata.html',
-        match_data=all_match_data,
-        event_list=event_list,
-        display_event_name=display_event_name)
 
 @bp.route("/match")
 def report_match_page():
