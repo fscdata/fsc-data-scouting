@@ -37,6 +37,7 @@
         <h4>Add a New Event</h4>
 
         <form action="/admin/addto_active_events" method="POST" onsubmit="return validate()">
+            <input type="text" name="event_year" placeholder="Event Year" size="10" required>
             <input type="text" name="event_code" placeholder="Event Abbreviation" size="10" required>
             <input type="text" name="event_name" placeholder="Event Name" size="30" required>
             <input type="text" name="event_date" placeholder="Event Date (YYYY-MM-DD)" size="12" required>
