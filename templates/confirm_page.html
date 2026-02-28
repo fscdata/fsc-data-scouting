@@ -1,18 +1,6 @@
-<!doctype html>
-<html>
-    <head>
-        <title>Data</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src={{ url_for('static', filename='js/main.js') }}></script>
-        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
-    </head>
-<body>
-    <div class="wrapperDiv">
-        <br />
-        Thanks for the data!
-        <br />
-        <button class="send" onclick="document.location='/scout/'">SCOUT AGAIN!</button>
-        
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+    <h1>Thanks for the data!</h1>
+
+    <h4><button class="send" onclick="document.location='/scout/'">SCOUT AGAIN!</button></h4>
+{% endblock %}

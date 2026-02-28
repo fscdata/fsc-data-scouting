@@ -54,6 +54,8 @@
 td, th {
   border: 1px solid darkgray;
   font-size: smaller;
+  /* center text in table cells */
+  text-align: center;
 }
 .numbox {
   width: 3em;
@@ -65,6 +67,11 @@ td, th {
   appearance: none; /* Standard */
   /* right-align the text in the input field */
   text-align: right;
+}
+.textBox {
+  width: 10em;
+  font-size: larger;
+  background-color: transparent;
 }
 .valueAdjust {
   border: 1px solid;

@@ -42,6 +42,13 @@ def add_new():
             'match_absent': 'absent' in request.form,
         }
         print(new_record_data)
+    
+        # set records to None (or 0 if boolean) if no data is present
+        for key, value in new_record_data.items():
+            if value == '' or value is None:
+                new_record_data[key] = None
+            elif isinstance(value, bool):
+                new_record_data[key] = int(value)
 
         # Filter out keys that are not in the MatchTeamData model
         valid_keys = [c.name for c in MatchTeamData.__table__.columns]
