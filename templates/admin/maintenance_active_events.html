@@ -25,11 +25,13 @@
         </span>
         <a href="/admin/update_events?event={{ event.event_id }}" class="send">Remove</a>
         
-        {% if event.event_currently_active %}
-        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set Inactive</a>
-        {% else %}
-        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set Active</a>
-        {% endif %}
+        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set 
+            {% if event.event_currently_active %}
+            Inactive
+            {% else %}
+            Active
+            {% endif %}
+        </a>
 
         <br />
         {% endfor %}

@@ -2,6 +2,7 @@
 {% block content %}
 <div class="scoutDiv">
     <form action="/scout/add_data" method="POST" onsubmit="return validate()">
+        <!-- limit text box input to only integers -->
         <input type="text" name="match_number" placeholder="Match Number" size="15" class="textBox" required>
         <input type="text" name="team_number" placeholder="Team Number" size="15" class="textBox" required>
         <br /><hr />
@@ -11,13 +12,13 @@
         <label for="auto_fuel_score">Fuel scored</label>
         <br />
         <button class="valueAdjust" onclick="minusOne('auto_fuel_score');">-1</button>
-        <input class="numbox" type="number" id="auto_fuel_score" name="auto_fuel_score" value="0" min="0">
+        <input class="numbox" type="number" id="auto_fuel_score" name="auto_fuel_score" value="0" min="0" required>
         <button class="valueAdjust" onclick="plusOne('auto_fuel_score');">+1</button>
         <button class="valueAdjust" onclick="plusFive('auto_fuel_score');">+5</button>
         <button class="valueAdjust" onclick="plusTen('auto_fuel_score');">+10</button>
         <br />
         <br />
-        <label for="auto_climb_try">Auto Climb?</label>
+        <label for="auto_climb_try">Tried to Climb?</label>
         <select name="auto_climb_try" id="auto_climb_try">
             <option value="0">did not attempt</option>
             <option value="1">attempted</option>
@@ -37,7 +38,7 @@
         <label for="teleop_fuel_score">Fuel scored</label>
         <br />
         <button class="valueAdjust" onclick="minusOne('teleop_fuel_score');">-1</button>
-        <input class="numbox" type="number" id="teleop_fuel_score" name="teleop_fuel_score" value="0" min="0">
+        <input class="numbox" type="number" id="teleop_fuel_score" name="teleop_fuel_score" value="0" min="0" required>
         <button class="valueAdjust" onclick="plusOne('teleop_fuel_score');">+1</button>
         <button class="valueAdjust" onclick="plusFive('teleop_fuel_score');">+5</button>
         <button class="valueAdjust" onclick="plusTen('teleop_fuel_score');">+10</button>
@@ -47,7 +48,7 @@
         <label for="teleop_fuel_miss">Fuel missed</label>
         <br />
         <button class="valueAdjust" onclick="minusOne('teleop_fuel_miss');">-1</button>
-        <input class="numbox" type="number" id="teleop_fuel_miss" name="teleop_fuel_miss" value="0" min="0">
+        <input class="numbox" type="number" id="teleop_fuel_miss" name="teleop_fuel_miss" value="0" min="0" required>
         <button class="valueAdjust" onclick="plusOne('teleop_fuel_miss');">+1</button>
         <button class="valueAdjust" onclick="plusFive('teleop_fuel_miss');">+5</button>
         <button class="valueAdjust" onclick="plusTen('teleop_fuel_miss');">+10</button>
@@ -66,8 +67,8 @@
 
         <!-- ENDGAME -->
         <h3>Endgame</h3>
-        <label for="endgame_climb">Endgame Climb?</label>
-        <select name="endgame_climb" id="endgame_climb">
+        <label for="endgame_climb_try">Tried to Climb?</label>
+        <select name="endgame_climb_try" id="endgame_climb_try">
             <option value="0">did not attempt</option>
             <option value="1">attempted</option>
         </select>

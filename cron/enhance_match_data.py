@@ -48,22 +48,27 @@ def request_match_data(event_code: str, match_number: int):
                 MatchData.event_id == event_id,
                 MatchData.match_number == match_number)\
             .first()
-        auto_climb_dict = {
-            match_climbs.red_1_id: match_climbs.red_1_auto_climb,
-            match_climbs.red_2_id: match_climbs.red_2_auto_climb,
-            match_climbs.red_3_id: match_climbs.red_3_auto_climb,
-            match_climbs.blue_1_id: match_climbs.blue_1_auto_climb,
-            match_climbs.blue_2_id: match_climbs.blue_2_auto_climb,
-            match_climbs.blue_3_id: match_climbs.blue_3_auto_climb,
-        }
-        endgame_climb_dict = {
-            match_climbs.red_1_id: match_climbs.red_1_endgame_climb,
-            match_climbs.red_2_id: match_climbs.red_2_endgame_climb,
-            match_climbs.red_3_id: match_climbs.red_3_endgame_climb,
-            match_climbs.blue_1_id: match_climbs.blue_1_endgame_climb,
-            match_climbs.blue_2_id: match_climbs.blue_2_endgame_climb,
-            match_climbs.blue_3_id: match_climbs.blue_3_endgame_climb,
-        }
+        if match_climbs is None:
+            print(f'! Match number {match_number} not found for event {event_code}')
+            auto_climb_dict = None
+            endgame_climb_dict = None
+        else:
+            auto_climb_dict = {
+                match_climbs.red_1_id: match_climbs.red_1_auto_climb,
+                match_climbs.red_2_id: match_climbs.red_2_auto_climb,
+                match_climbs.red_3_id: match_climbs.red_3_auto_climb,
+                match_climbs.blue_1_id: match_climbs.blue_1_auto_climb,
+                match_climbs.blue_2_id: match_climbs.blue_2_auto_climb,
+                match_climbs.blue_3_id: match_climbs.blue_3_auto_climb,
+            }
+            endgame_climb_dict = {
+                match_climbs.red_1_id: match_climbs.red_1_endgame_climb,
+                match_climbs.red_2_id: match_climbs.red_2_endgame_climb,
+                match_climbs.red_3_id: match_climbs.red_3_endgame_climb,
+                match_climbs.blue_1_id: match_climbs.blue_1_endgame_climb,
+                match_climbs.blue_2_id: match_climbs.blue_2_endgame_climb,
+                match_climbs.blue_3_id: match_climbs.blue_3_endgame_climb,
+            }
         # TODO: include in MatchTeamData?
         # team_rp_dict = {
         #     match_climbs.red_1_id: match_climbs.red_rp,
@@ -90,7 +95,7 @@ def find_team_records_needing_climb_data(event_code: str):
         for match_id, team_number in team_match_needs_enhancing:
             print(match_id, team_number)
             auto_climb_dict, endgame_climb_dict = request_match_data(event_code, match_id)
-            if not team_number in auto_climb_dict:
+            if not team_number in auto_climb_dict or not auto_climb_dict or not endgame_climb_dict:
                 print(f'No climb data found for team {team_number} in match {match_id}, validate match data is correct and complete.')
             else:
                 climb_result = auto_climb_dict[team_number]
@@ -98,6 +103,7 @@ def find_team_records_needing_climb_data(event_code: str):
                 print(f'Updating MatchTeamData for match {match_id} and team {team_number} with climb result {climb_result} and endgame climb result {endgame_climb_result}')
                 db.session.query(MatchTeamData)\
                     .filter(
+                        MatchTeamData.event_id == event_id,
                         MatchTeamData.match_id == match_id,
                         MatchTeamData.team_number == team_number)\
                     .update({
