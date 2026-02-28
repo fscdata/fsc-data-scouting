@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Data Export</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <form action="/admin/export_to_csv" method="POST" onsubmit="return validate()">
+            min match number:
+            <input class="numbox" type="number" id="min_match_id" name="min_match_id" min="0" placeholder="0">
+            <input class="send" type="submit" value="EXPORT RECORDS">
+        </form>
+
+        <br />
+        <button class="send" onclick="document.location='/admin/check_data'">LIGHT ADMIN PAGE!</button>
+        <br />
+        <button class="send" onclick="document.location='/'">BACK TO SCOUTING!</button>
+    </div>
+    <hr />
+    Data entered so far...
+    <table class="tableDiv">
+        <tr>
+            <td>report_id</td>
+            <td>match</td>
+            <td>team</td>
+            <td>auto coral score</td>
+            <td>teleop coral score</td>
+        </tr>
+    {% for score in score_data %}
+        <tr>
+            <td>{{score[0]}}</td>
+            <td>{{score[1]}}</td>
+            <td>{{score[2]}}</td>
+            <td>{{score[7]|int + score[8]|int + score[9]|int + score[10]|int}}</td>
+            <td>{{score[19]|int + score[20]|int + score[21]|int + score[22]|int}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+</body>
+</html>
+
