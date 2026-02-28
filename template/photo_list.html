@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Available Photos for Teams</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <ul>
+            {% for team in all_teams %}
+            <li>
+                Team {{ team }}
+                {% if team in all_files %}
+                <a href={{ url_for('static', filename='uploads/scout/' + all_files[team])}}>
+                    link to photo
+                </a>
+                {% endif %}
+            </li>
+            {% endfor %}    
+        </ul>
+    </div>
+</body>
+</html>
+
