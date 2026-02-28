@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="/report/raw/" method="POST">
+        <label for="event_id">Event code:</label>
+        <!-- Dropdown menu generated from available event names -->
+        <select id="event_id" name="event_id">
+            {% for event in event_list %}
+            <option value="{{ event.event_id }}"
+                {% if event.event_currently_active %} selected{% endif%}
+            >{{ event.event_code }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="submit" value="Switch Event" />
+    </form>
+
+    <h3>Match Data Recorded for {{ display_event_name }}</h3>
+    <table>
+        <thead>
+            <tr>
+                <!-- <th>Record ID</th> -->
+                <th>Match ID</th>
+                <th>Team Number</th>
+                <th class="reportTableAuto">Auto Fuel Score</th>
+                <th class="reportTableAuto">Auto Climb Attempt</th>
+                <th class="reportTableAuto">Auto Climbed</th>
+                <th class="reportTableAuto">Auto Traveled</th>
+                <th>Teleop Fuel Score</th>
+                <th>Teleop Traveled</th>
+                <th>Endgame Climb Attempt</th>
+                <th>Endgame Climb Level</th>
+                <th class="reportTableAuto">Match Fouls</th>
+                <th class="reportTableAuto">Match Card</th>
+                <th class="reportTableAuto">Match Tipped</th>
+                <th class="reportTableAuto">Match Broke</th>
+                <th class="reportTableAuto">Match Disabled</th>
+                <th class="reportTableAuto">Match Absent</th>
+                <th>Calc Auto Score</th>
+                <th>Calc Teleop Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in match_data %}
+            <tr>
+                <!-- <td>{{ record.record_id }}</td> -->
+                <td>{{ record.match_id }}</td>
+                <td>{{ record.team_number }}</td>
+                <td class="reportTableAuto">
+                    {% if record.auto_fuel_score is not none %}
+                        {{ record.auto_fuel_score }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.auto_climb_try is not none %}
+                        {{ record.auto_climb_try }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.auto_climbed is not none %}
+                        {{ record.auto_climbed }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.auto_traveled is not none %}
+                        {{ record.auto_traveled }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.teleop_fuel_score is not none %}
+                        {{ record.teleop_fuel_score }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.teleop_traveled is not none %}
+                        {{ record.teleop_traveled }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.endgame_climb_try is not none %}
+                        {{ record.endgame_climb_try }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.endgame_climb_level is not none %}
+                        {{ record.endgame_climb_level }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.match_fouls is not none %}
+                        {{ record.match_fouls }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.match_card is not none %}
+                        {{ record.match_card }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.match_tipped is not none %}
+                        {{ record.match_tipped }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.match_broke is not none %}
+                        {{ record.match_broke }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.match_disabled is not none %}
+                        {{ record.match_disabled }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td class="reportTableAuto">
+                    {% if record.match_absent is not none %}
+                        {{ record.match_absent }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.calc_auto_score is not none %}
+                        {{ record.calc_auto_score }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>{% if record.calc_teleop_score is not none %}
+                        {{ record.calc_teleop_score }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr />
+{% endblock %}

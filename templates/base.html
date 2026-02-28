@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>FIRST South Carolina Scouting Alliance</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <div class="menuHorizontalDiv">
+            <a href="/" class="menuLink">Home</a>
+            |
+            <a href="/scout/" class="menuLink">Scout</a> 
+            |
+            <a href="/report/" class="menuLink">Reports</a> 
+            |
+            <a href="/info/" class="menuLink">Info</a>
+        </div>
+        <div class="infoDiv">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

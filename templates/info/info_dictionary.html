@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>FRC Scouting Dictionary</h1>
+
+    <div class="menuHorizontalDiv">
+        <a href="/info/" class="menuLink">General Info</a>
+        <br />
+        <a href="/info/dictionary" class="menuLink">FRC Scouting Dictionary</a>
+        <br />
+        <a href="/info/how-to-scout" class="menuLink">Scouting Instructions</a>
+    </div>
+
+    <p><strong>GP (Gracious Professionalism)</strong> is a core principle from FIRST that blends high-quality work with respect, kindness, and empathy. You compete intensely but treat everyone with honor, avoiding disrespect, bashing, or negative cheering. It's about being helpful to rivals, sharing knowledge, and fostering a positive environment where success comes from both personal excellence and collective growth, making a difference beyond just winning.</p>
+
+    <p><strong>Coopertition</strong>: In FIRST (FRC), Coopertition® is the philosophy that teams can and should cooperate and assist one another even while competing intensely. It embodies "unqualified kindness and respect in the face of fierce competition," where teams help rivals with parts or labor, ensuring everyone can succeed. </p>
+
+    <p><strong>RP (Ranking Points)</strong>: Awarded during Qualification matches to determine team rankings. Each year the criteria changes for how to receive RP, more RP=better team (usually).</p>
+
+    <p><strong>Scorched Earth</strong>: This term originated from the military, describing a strategy that aims to destroy anything that might be useful to the enemy. 
+    In FRC this means that a top 8 seed team picks other teams in the top 8 expecting a “no” answer. This way no lower alliance captains can merge with other potential alliance captains and form a strong alliance. </p>
+
+    <p><strong>EPA (Expected Points Added)</strong>. This is a metric used to measure a robot’s predicted performance by estimating how many points a team contributes per match, acting as a moving average that tracks performance over a season.
+    EPA is calculated per Robot/Team. A higher score is better. </p>
+
+    <p><strong>OPR</strong> = Offensive Power Rating Estimates points a team contributes to their alliance per match. Higher scores are better.
+    (Team A + Team B + Team C) / 3 = OPR Score</p>
+
+    <p><strong>DPR</strong> = Defensive Power Rating Estimates points a team prevents an opposing alliance per match. A lower score is better.
+    Alliance A score - Alliance B score / 3</p>
+
+    <p><strong>CCWM</strong> = Calculated Contribution to Winning the Match. How much your specific robot has contributed to winning your matches. Disabled/Broken robots usually have lower scores. (OPR-DPR)</p>
+    
+    <p><strong>Pick List</strong> - A list of teams composed of any wanted alliance teams. It is important to have a pick list whether our team is in an alliance captain position or not.</p>
+    
+    <p><strong>Sand Bagging</strong> - a strategy of lowering the expectations of a company or an individual's strengths and core competencies in order to produce relatively greater-than-anticipated results.</p>
+
+    <p><strong>Kit-Bot</strong>: an official, open-source, and beginner-friendly robot design included in the Kickoff Kit to provide a foundational, functional robot for teams.</p>
+
+    <p><strong>EveryBot</strong>: The Everybot is an annual, open-source robot design created by FRC Team 118 (The Robonauts) to provide under-resourced teams with a highly competitive, affordable, and capable machine. Built using basic tools and Kit of Parts (KOP) components, it allows teams to achieve competitive performance, often featuring functions like game piece manipulation, climbing, and efficient navigation.</p>
+
+    <p><strong>Quantitative Data</strong>: Numbers-based, countable, or measurable Data. This type of data is gathered from on-field performance. Ex: Team 123 scored X game pieces during match Y.</p>
+
+    <p><strong>Qualitative Data</strong>: Interpretation-based, descriptive, and  Data relating to language. This type of data is gathered from pit-scouting and talking with other teams. Ex: Team 123 has a defense based robot and cannot score.</p>
+{% endblock %}

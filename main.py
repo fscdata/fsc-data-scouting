@@ -1,30 +1,36 @@
 from __future__ import print_function
 
 import os
-import os.path
-import random
-import requests
-
-# from io import BytesIO
-# from matplotlib.figure import Figure
+import urllib.parse
 
 from flask import Flask
-from flask import flash
-from flask import request
-from flask import jsonify
-from flask import redirect
-from flask import url_for
-from flask import *
-from werkzeug.utils import secure_filename
-from io import StringIO
-import datetime
-import csv
-import sqlite3
-
-from sql_data import SQL_Templates
+from flask_migrate import Migrate  # Add this import
+from database_model import db, Event
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
+def get_db_uri():
+    """Constructs the database URI from environment variables."""
+    db_user = os.environ.get("DB_USER")
+    db_pass = os.environ.get("DB_PASS")
+    db_name = os.environ.get("DB_NAME")
+    instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
+
+    # If the instance connection name is present, connect via the Cloud SQL Auth Proxy
+    if instance_connection_name:
+        parsed_pwd = urllib.parse.quote_plus(db_pass)
+        # The format for a Unix socket connection is:
+        # mysql+pymysql://<db_user>:<db_pass>@/<db_name>?host=/cloudsql/<instance_connection_name>
+        # Note the empty host before the slash and the host parameter in the query string.
+        return (
+            f"mysql+pymysql://{db_user}:{parsed_pwd}@/"
+            f"{db_name}?unix_socket=/cloudsql/{instance_connection_name}"
+        )
+
+    # Fallback for local development (e.g., using a local SQLite database)
+    return os.environ.get('SQLALCHEMY_DB_URI', 'sqlite:///scouting.db')
+
+## Flask app setup and routes
 app = Flask(__name__)
 app.secret_key = 'frc2815'
 
@@ -144,180 +150,42 @@ sql = SQL_Templates()
 
 all_teams = []
 
-@app.route("/")
-def scout_page():
-    print('in scout page')
-    return render_template('scout_page.html')
+# print(get_db_uri())
+app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
+db.init_app(app)  # Initialize the SQLAlchemy database with the app
 
-@app.route("/confirmed")
-def confirmation_page():
-    print('confirming data received')
-    photo_list = ['alex', 'brooks', 'ella', 'jeremiah', 'tyra'] #CHANGE THESE TO CURRENT DRIVE TEAM
-    photo_id = random.randrange(0, len(photo_list))
-    photo_name = f'{photo_list[photo_id]}.png'
-    return render_template(
-        'confirm_page.html',
-        photo_name=photo_name
-    )
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)
 
-@app.route("/rejected")
-def error_page():
-    print('confirming data WAS NOT RECEIVED')
-    return render_template('error_page.html')
+# Register blueprints
+from routes.main_routes import bp as main_bp
+from routes.scout_routes import bp as scout_bp
+from routes.report_routes import bp as report_bp
+from routes.admin_routes import bp as admin_bp
+from routes.info_routes import bp as info_bp
 
-@app.route("/admin/check_data")
-def admin_check_data():
-    score_data = db_query(sql.get_short_score, current_score_db)
-    # print(score_data)
-    match_summary = summarize(score_data)
-    return render_template(
-        'admin_light.html',
-        score_data=score_data,
-        match_summary=match_summary
-    )
+app.register_blueprint(main_bp)
+app.register_blueprint(scout_bp)
+app.register_blueprint(report_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(info_bp)
+##
 
-@app.route("/admin/full_data")
-def admin_show_all_data():
-    score_data = db_query(sql.get_full_score, current_score_db)
-    # if len(score_data) > 0:
-        # print(score_data[0])
-    return render_template(
-        'admin_export.html',
-        score_data=score_data
-    )
+## Main execution of app
+@app.cli.command("init-db")
+def init_db():
+    """Initialize the database with migrations (creates tables if needed, applies pending migrations)."""
+    # Import model classes to register with SQLAlchemy metadata
+    from database_model import Team, Event, MatchTeamData, MatchData, Calculation
 
-@app.route("/admin/climb_data")
-def admin_show_climb_data():
-    ping_blue_alliance()
-    event_list = []
-    summary_data = {}
-    summary_deep_data = {}
-    climb_data = db_query(sql.get_climb_score, current_score_db)
-    if len(climb_data) > 0:
-        for match in climb_data:
-            event_name = event_abbreviations[match[0]]
-            team_number = match[2]
-            parked = match[3]
-            shallow = match[4]
-            deep = match[5]
-            if event_name not in event_list:
-                event_list.append(event_name)
-            if event_name not in summary_data:
-                summary_data[event_name] = {}
-                summary_deep_data[event_name] = {}
-            if team_number not in summary_data[event_name] and (parked > 0 or shallow > 0 or deep > 0):
-                summary_data[event_name][team_number] = {}
-                summary_data[event_name][team_number]['number'] = team_number
-                summary_data[event_name][team_number]['times_parked'] = 0
-                summary_data[event_name][team_number]['times_shallow'] = 0
-                summary_data[event_name][team_number]['times_deep'] = 0
-            if (parked > 0 or shallow > 0 or deep > 0):
-                summary_data[event_name][team_number]['times_parked'] += parked
-                summary_data[event_name][team_number]['times_shallow'] += shallow
-                summary_data[event_name][team_number]['times_deep'] += deep
-            if team_number not in summary_deep_data[event_name] and deep > 0:
-                summary_deep_data[event_name][team_number] = {}
-                summary_deep_data[event_name][team_number]['number'] = team_number
-                summary_deep_data[event_name][team_number]['times_deep'] = 0
-            if deep > 0:
-                summary_deep_data[event_name][team_number]['times_deep'] += deep
-
-    return render_template(
-        'admin_climb.html',
-        event_list=event_list,
-        summary_deep_data=summary_deep_data,
-        summary_data=summary_data,
-        climb_data=climb_data
-    )
-
-@app.route("/view_team/<team_id>")
-def admin_show_team_data(team_id):
-    team_scores = db_query(sql.get_team_scores(team_id), current_score_db)
-    for score in team_scores:
-        print(score)
-    return render_template(
-        'view_team.html',
-        team_scores=team_scores
-    )
-
-@app.route("/admin/export_to_csv", methods = ['POST', 'GET'])
-def admin_export_data():
-    min_match_id = request.form['min_match_id'] if 'min_match_id' in request.form else 0
-    if not min_match_id:
-        min_match_id = 0
-    timestamp = datetime.datetime.now().strftime('%y%m%d-%H%M')
-    export_filename = f'score_export_{timestamp}.csv'
-    si = StringIO()
-    cw = csv.writer(si)
-    conn = sqlite3.connect(current_score_db)
-    cursor = conn.cursor()
-    sql_string = sql.get_csv_score(min_match_id)
-    print(sql_string)
-    cursor.execute(sql_string)
-    cw.writerow([i[0] for i in cursor.description])
-    cw.writerows(cursor)
-    conn.close()
-    output = make_response(si.getvalue())
-    output.headers["Content-Disposition"] = f"attachment; filename={export_filename}"
-    output.headers["Content-type"] = "text/csv"
-    return output
-
-@app.route('/scout/add_data', methods = ['POST', 'GET'])
-def add_new():
-    if request.method == 'POST':
-        print(request.form)
-
-        scout_data = {
-            'team_number': request.form['team_number'],
-            'match_number': request.form['match_number'],
-            'notes': request.form['notes'],
-
-            #AUTO-AUTO-AUTO
-            'start_position': request.form['start_position'],
-            'auto_leave': 1 if 'auto_leave' in request.form else 0,
-            'auto_score_preload': 1 if 'auto_score_preload' in request.form else 0,
-            'auto_reefL1': request.form['auto_reefL1'],
-            'auto_reefL2': request.form['auto_reefL2'],
-            'auto_reefL3': request.form['auto_reefL3'],
-            'auto_reefL4': request.form['auto_reefL4'],
-            'auto_algae_knockoff': request.form['auto_algae_knockoff'],
-            'auto_score_algae_net': request.form['auto_score_algae_net'],
-            'auto_score_algae_proc': request.form['auto_score_algae_proc'],
-            'auto_astop': 1 if 'auto_astop' in request.form else 0,
-            'auto_failed': 1 if 'auto_failed' in request.form else 0,
-
-            #TELEOP-TELEOP-TELEOP
-            'teleop_score_algae_net': request.form['teleop_score_algae_net'],
-            'teleop_score_algae_proc': request.form['teleop_score_algae_proc'],
-            'teleop_algae_knockoff': request.form['teleop_algae_knockoff'],
-            'teleop_reefL1': request.form['teleop_reefL1'],
-            'teleop_reefL2': request.form['teleop_reefL2'],
-            'teleop_reefL3': request.form['teleop_reefL3'],
-            'teleop_reefL4': request.form['teleop_reefL4'],
-            'teleop_coral_miss': request.form['teleop_coral_miss'],
-
-            # ENDGAME-ENDGAME-ENDGAME
-            'parked': 1 if 'parked' in request.form else 0,
-
-            # OTHER INFO
-            'coopertition': 1 if 'coopertition' in request.form else 0,
-            'RP_auto': 1 if 'RP_auto' in request.form else 0,
-            'RP_coral': 1 if 'RP_coral' in request.form else 0,
-            'RP_barge': 1 if 'RP_barge' in request.form else 0,
-            'tipped': 1 if 'tipped' in request.form else 0,
-            'broken': 1 if 'broken' in request.form else 0,
-            'REDcarded': 1 if 'REDcarded' in request.form else 0,
-            'YELLOWcarded': 1 if 'YELLOWcarded' in request.form else 0,
-            'TECHfoul': 1 if 'TECHfoul' in request.form else 0
-        }
-
-        add_data_msg = db_commit(sql.enter_new_scout_record(scout_data), current_score_db)
-        if 'error' in add_data_msg:
-            print(f'FAILED to add scouting report')
-            return redirect('/rejected')
-        else:
-            print(f'successfully added scouting report')
-            return redirect('/confirmed')
+    # Run inside the app context
+    with app.app_context():
+        try:
+            # Create tables if they don't exist (for initial setup)
+            db.create_all()
+            print("Initialized the database (tables created if missing).")
+        except Exception as e:
+            print(f"Error initializing the database: {e}")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)

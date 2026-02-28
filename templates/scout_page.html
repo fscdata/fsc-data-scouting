@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="scoutDiv">
+    <form action="/scout/add_data" method="POST" onsubmit="return validate()">
+        <input type="text" name="match_number" placeholder="Match Number" size="15" class="textBox" required>
+        <input type="text" name="team_number" placeholder="Team Number" size="15" class="textBox" required>
+        <br /><hr />
+
+        <!-- AUTO -->
+        <h3>Autonomous</h3>
+        <label for="auto_fuel_score">Fuel scored</label>
+        <br />
+        <button class="valueAdjust" onclick="minusOne('auto_fuel_score');">-1</button>
+        <input class="numbox" type="number" id="auto_fuel_score" name="auto_fuel_score" value="0" min="0">
+        <button class="valueAdjust" onclick="plusOne('auto_fuel_score');">+1</button>
+        <button class="valueAdjust" onclick="plusFive('auto_fuel_score');">+5</button>
+        <button class="valueAdjust" onclick="plusTen('auto_fuel_score');">+10</button>
+        <br />
+        <br />
+        <label for="auto_climb_try">Auto Climb?</label>
+        <select name="auto_climb_try" id="auto_climb_try">
+            <option value="0">did not attempt</option>
+            <option value="1">attempted</option>
+        </select>
+        <br />
+        <br />
+        <label for="auto_traveled">Auto Traveled?</label>
+        <select name="auto_traveled" id="auto_traveled">
+            <option value="0">no motion</option>
+            <option value="1">within alliance zone</option>
+            <option value="2">to neutral zone</option>
+        </select>
+        <br /><hr />
+
+        <!-- TELEOP -->
+        <h3>Teleop</h3>
+        <label for="teleop_fuel_score">Fuel scored</label>
+        <br />
+        <button class="valueAdjust" onclick="minusOne('teleop_fuel_score');">-1</button>
+        <input class="numbox" type="number" id="teleop_fuel_score" name="teleop_fuel_score" value="0" min="0">
+        <button class="valueAdjust" onclick="plusOne('teleop_fuel_score');">+1</button>
+        <button class="valueAdjust" onclick="plusFive('teleop_fuel_score');">+5</button>
+        <button class="valueAdjust" onclick="plusTen('teleop_fuel_score');">+10</button>
+        <br />
+        <br />
+        <label for="teleop_fuel_miss">Fuel missed</label>
+        <br />
+        <button class="valueAdjust" onclick="minusOne('teleop_fuel_miss');">-1</button>
+        <input class="numbox" type="number" id="teleop_fuel_miss" name="teleop_fuel_miss" value="0" min="0">
+        <button class="valueAdjust" onclick="plusOne('teleop_fuel_miss');">+1</button>
+        <button class="valueAdjust" onclick="plusFive('teleop_fuel_miss');">+5</button>
+        <button class="valueAdjust" onclick="plusTen('teleop_fuel_miss');">+10</button>
+        <br />
+        <br />
+        <label for="teleop_traveled">Teleop Traveled?</label>
+        <select name="teleop_traveled" id="teleop_traveled">
+            <option value="0">no motion</option>
+            <option value="1">within alliance zone</option>
+            <option value="2">to neutral zone</option>
+            <option value="3">to opponent zone</option>
+        </select>
+        <br />
+        <hr />
+
+        <!-- ENDGAME -->
+        <h3>Endgame</h3>
+        <label for="endgame_climb">Endgame Climb?</label>
+        <select name="endgame_climb" id="endgame_climb">
+            <option value="0">did not attempt</option>
+            <option value="1">attempted</option>
+        </select>
+        <br /><hr />
+
+        <h4>Robot Issues (unusual events!)</h4>
+
+        <!-- MISC -->
+        <input type="checkbox" id="tipped" name="tipped" value="1">
+        <label for="tipped">Tipped?</label>
+        <br />
+        <input type="checkbox" id="broken" name="broken" value="1">
+        <label for="broken">Broken?</label>
+        <br />
+        <input type="checkbox" id="carded" name="carded" value="1">
+        <label for="carded">Red or Yellow Card?</label>
+        <br />
+        <input type="checkbox" id="disabled" name="disabled" value="1">
+        <label for="disabled">Disabled? (A-Stop or E-Stop)</label>
+        <br />
+        <input type="checkbox" id="absent" name="absent" value="1">
+        <label for="absent">Absent from Field?</label>
+        <br />
+        <hr />
+
+        all good? <input class="send" type="submit" value="SUBMIT"> your data!
+    </form>
+</div>
+{% endblock %}

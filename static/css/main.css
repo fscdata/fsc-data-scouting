@@ -8,7 +8,38 @@
   clear: left;
 }
 
+.menuLink {
+  color: darkgray;
+  text-decoration: none;
+  margin: 0.25em;
+}
+.menuDiv {
+  width: 10%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+.menuHorizontalDiv {
+  width: 100%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+
+.infoDiv {
+  width: 80%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
 .wrapperDiv {
+  width: 100%;
+  background-color: transparent;
+  text-align: center;
+  font-family: Calibri, Helvetica, sans-serif;
+  font-size: larger;
+}
+.scoutDiv {
   width: 100%;
   background-color: transparent;
   text-align: center;
@@ -22,23 +53,31 @@
 }
 td, th {
   border: 1px solid darkgray;
+  font-size: smaller;
+  /* center text in table cells */
+  text-align: center;
 }
 .numbox {
-  width: 2.5em;
-  border: 0px;
+  width: 3em;
+  font-size: larger;
+  background-color: transparent;
+  /* hide the up/down arrows on number input fields */
+  -moz-appearance: textfield; /* Firefox */
+  -webkit-appearance: none; /* Chrome, Safari, Edge */
+  appearance: none; /* Standard */
+  /* right-align the text in the input field */
+  text-align: right;
+}
+.textBox {
+  width: 10em;
+  font-size: larger;
   background-color: transparent;
 }
-.minus {
-  border: 1px solid blue;
-  border-radius: 6px 0px 0px 6px;
+.valueAdjust {
+  border: 1px solid;
+  border-radius: 5px;
   margin: 0px;
-  width: 1.5em;
-}
-.plus {
-  border: 1px solid blue;
-  border-radius: 0px 6px 6px 0px;
-  margin: 0px;
-  width: 1.5em;
+  font-size: large;
 }
 .send {
   margin: 0.25em;
@@ -48,6 +87,9 @@ td, th {
 }
 table {
   border: 0px;
+}
+.reportTableAuto {
+  background: lightgray;
 }
 
 @media screen and (max-width: 480px) {
