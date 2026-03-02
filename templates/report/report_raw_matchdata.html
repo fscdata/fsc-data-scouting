@@ -19,7 +19,7 @@
         <thead>
             <tr>
                 <!-- <th>Record ID</th> -->
-                <th>Match ID</th>
+                <th>Match Number</th>
                 <th>Team Number</th>
                 <th class="reportTableAuto">Auto Fuel Score</th>
                 <th class="reportTableAuto">Auto Climb Attempt</th>
@@ -29,44 +29,52 @@
                 <th>Teleop Traveled</th>
                 <th>Endgame Climb Attempt</th>
                 <th>Endgame Climb Level</th>
-                <th class="reportTableAuto">Match Fouls</th>
-                <th class="reportTableAuto">Match Card</th>
-                <th class="reportTableAuto">Match Tipped</th>
-                <th class="reportTableAuto">Match Broke</th>
-                <th class="reportTableAuto">Match Disabled</th>
-                <th class="reportTableAuto">Match Absent</th>
-                <th>Calc Auto Score</th>
-                <th>Calc Teleop Score</th>
+                <th class="reportTableAuto">Strategy Active Scored</th>
+                <th class="reportTableAuto">Strategy Active Ferrying</th>
+                <th class="reportTableAuto">Strategy Active Defense</th>
+                <th class="reportTableAuto">Strategy Inactive Scored</th>
+                <th class="reportTableAuto">Strategy Inactive Ferrying</th>
+                <th class="reportTableAuto">Strategy Inactive Defense</th>
+                <th class="reportTableAuto">Defense Actions Count</th>
+                <th>Match Fouls</th>
+                <th>Match Carded</th>
+                <th>Match Tipped</th>
+                <th>Match Beached</th>
+                <th>Match Broke</th>
+                <th>Match Disabled</th>
+                <th>Match Absent</th>
+                <!-- <th class="reportTableAuto">Calc Auto Score</th> -->
+                <!-- <th class="reportTableAuto">Calc Teleop Score</th> -->
             </tr>
         </thead>
         <tbody>
             {% for record in match_data %}
             <tr>
                 <!-- <td>{{ record.record_id }}</td> -->
-                <td>{{ record.match_id }}</td>
+                <td>{{ record.match_number }}</td>
                 <td>{{ record.team_number }}</td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.auto_fuel_score is not none %}
                         {{ record.auto_fuel_score }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.auto_climb_try is not none %}
                         {{ record.auto_climb_try }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.auto_climbed is not none %}
                         {{ record.auto_climbed }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.auto_traveled is not none %}
                         {{ record.auto_traveled }}
                     {% else %}
@@ -101,49 +109,104 @@
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
+                    {% if record.strategy_active_scored is not none %}
+                        {{ record.strategy_active_scored }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.strategy_active_ferrying is not none %}
+                        {{ record.strategy_active_ferrying }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.strategy_active_defense is not none %}
+                        {{ record.strategy_active_defense }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.strategy_inactive_scored is not none %}
+                        {{ record.strategy_inactive_scored }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.strategy_inactive_ferrying is not none %}
+                        {{ record.strategy_inactive_ferrying }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.strategy_inactive_defense is not none %}
+                        {{ record.strategy_inactive_defense }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.strategy_defense_actions is not none %}
+                        {{ record.strategy_defense_actions }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
                     {% if record.match_fouls is not none %}
                         {{ record.match_fouls }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.match_card is not none %}
                         {{ record.match_card }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.match_tipped is not none %}
                         {{ record.match_tipped }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
+                    {% if record.match_beached is not none %}
+                        {{ record.match_beached }}
+                    {% else %}
+                        --
+                    {% endif %}
+                <td>
                     {% if record.match_broke is not none %}
                         {{ record.match_broke }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.match_disabled is not none %}
                         {{ record.match_disabled }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td class="reportTableAuto">
+                <td>
                     {% if record.match_absent is not none %}
                         {{ record.match_absent }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td>
+                <!-- <td>
                     {% if record.calc_auto_score is not none %}
                         {{ record.calc_auto_score }}
                     {% else %}
@@ -155,7 +218,7 @@
                     {% else %}
                         --
                     {% endif %}
-                </td>
+                </td> -->
             </tr>
             {% endfor %}
         </tbody>

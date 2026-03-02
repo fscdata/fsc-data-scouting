@@ -15,13 +15,6 @@
         To remove a team, input the team number and click "Remove Team". <br />
         <br />
 
-        <h3>Teams in Database</h3>
-        {% for team in team_data %}
-        <span>Team Number <strong>{{ team[0] }}</strong>: Team Name {{ team[1] }}</span>
-        <a href="/admin/update_frc_teams?team={{ team[0] }}" class="btn send">Remove</a>
-        <br />
-        {% endfor %}
-        <hr />
         <h4>Add a New Team</h4>
 
         <form action="/admin/addto_frc_teams" method="POST" onsubmit="return validate()">
@@ -29,6 +22,16 @@
             <input type="text" name="team_name" placeholder="Team Name" size="30" required>
         <input class="send" type="submit" value="ADD NEW TEAM">
         </form>
+
+        <hr />
+
+        <h3>Teams in Database</h3>
+        {% for team in team_data %}
+        <span>Team Number <strong>{{ team[0] }}</strong>: Team Name {{ team[1] }}</span>
+        <a href="/admin/update_frc_teams?team={{ team[0] }}" class="btn send">Remove</a>
+        <br />
+        {% endfor %}
+
     </div>
 </body>
 </html>

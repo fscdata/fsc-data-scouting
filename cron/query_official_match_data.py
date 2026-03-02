@@ -44,7 +44,7 @@ def api_call_match_data(event_year, event_code, match_level, match_number):
     single_match_scores_url = f'{first_api_base_url}/{event_year}/scores/{event_code}/{match_level}?matchNumber={match_number}'
 
     # encode the token in base 64
-    encoded_token = base64.b64encode(bytes('fscdata:fcc8c8e6-12b2-4d89-8e14-3141f969c8d5', 'utf-8'))
+    encoded_token = base64.b64encode(bytes(f'{first_api_username}:{first_api_key}', 'utf-8'))
     headers = {
         'Authorization' : f'Basic {encoded_token.decode("utf-8")}'
     }
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     event_code = 'WEEK0'
     match_level = 'Qualification'
 
-    next_match_id = find_next_match_to_query(event_code = 'WEEK0')
+    next_match_id = find_next_match_to_query(event_code = event_code)
 
     api_call_match_data(
         event_year = event_year,

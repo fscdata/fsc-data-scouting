@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Team {{team_number}} Report</h1>
+
+    <h4>Average Information</h4>
+
+    <h4>Match Records</h4>
+
+    <table>
+        <tr>
+            <th>Match Number</th>
+            <th>Auto Fuel Score</th>
+            <th>Teleop Fuel Score</th>
+            <th>Total Fuel Score</th>
+            <th>Auto Climb Attempts</th>
+            <th>Endgame Climb Attempts</th>
+        </tr>
+        {% for record in team_records %}
+        <tr>
+            <td>{{record.match_number}}</td>
+            <td>{{record.auto_fuel_score}}</td>
+            <td>{{record.teleop_fuel_score}}</td>
+            <td>{{record.auto_fuel_score + record.teleop_fuel_score}}</td>
+            <td>{{record.auto_climb_try}}</td>
+            <td>{{record.endgame_climb_try}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

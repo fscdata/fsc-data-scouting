@@ -65,6 +65,7 @@ def add_new_active_event():
             'event_code': request.form.get('event_code', ''),
             'event_name': request.form.get('event_name', ''),
             'event_date': request.form.get('event_date', ''),
+            'event_year': int(request.form.get('event_year', 2026)),
             'event_currently_active': False,
         }
 

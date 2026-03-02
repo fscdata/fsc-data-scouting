@@ -33,9 +33,11 @@ def deliver_csv_file():
         all_match_data = db.session\
             .query(MatchTeamData)\
             .filter(MatchTeamData.event_id == event_id, MatchTeamData.match_id >= min_match_id).all()
-        
-        print(all_match_data)
-        
+
+        # drop a few columns that aren't needed for export
+        columns_to_exclude = ['event_id', 'record_ip_address', 'record_hidden']
+        all_match_data = [row for row in all_match_data if not any(getattr(row, col) is not None for col in columns_to_exclude)]
+
         print(f' > Exporting {len(all_match_data)} records to CSV file {export_filename}')
         if not all_match_data:
             print(' > No data to export')
@@ -67,6 +69,36 @@ def report_event_page():
         match_data=event_match_data,
         aggregate_data=aggregate_data)
 
+@bp.route("/match")
+def report_match_page():
+    print(' > Rendering match report page')
+    match_data = db.session\
+        .query(MatchTeamData)\
+        .filter(MatchTeamData.match_id == 5).all()
+    return render_template(
+        'report/match_report_page.html',
+        match_data=match_data)
+
+@bp.route("/team")
+def report_team_page():
+    team_number = request.args.get('number')
+    print(f' > Rendering team report page for team number {team_number}')
+    if team_number is None:
+        error_message = 'No team number provided. Please enter a team number in the URL, such as /report/team?number=123.'
+        print(f' ! {error_message}')
+        return render_template('error.html', error_message=error_message)
+    team_records = db.session\
+        .query(MatchTeamData)\
+        .filter(MatchTeamData.team_number == team_number).all()
+    print(team_records)
+    # aggregate_data = db.session.query(Calculation)\
+    #     .filter(Calculation.calculation_name == 'event_climb')\
+    #     .first()
+    return render_template(
+        'report/team_report_page.html',
+        team_records=team_records,
+        aggregate_data=None)
+
 @bp.route("/raw/", methods = ['POST', 'GET'])
 def report_page():
     print(' > Rendering report page')
@@ -90,27 +122,3 @@ def report_page():
         match_data=all_match_data,
         event_list=event_list,
         display_event_name=display_event_name)
-
-@bp.route("/match")
-def report_match_page():
-    print(' > Rendering match report page')
-    match_data = db.session\
-        .query(MatchTeamData)\
-        .filter(MatchTeamData.match_id == 5).all()
-    return render_template(
-        'report/match_report_page.html',
-        match_data=match_data)
-
-@bp.route("/team")
-def report_team_page():
-    print(' > Rendering team report page')
-    team = db.session\
-        .query(MatchTeamData)\
-        .filter(MatchTeamData.match_id == 5).all()
-    aggregate_data = db.session.query(Calculation)\
-        .filter(Calculation.calculation_name == 'event_climb')\
-        .first()
-    return render_template(
-        'report/team_report_page.html',
-        team=team,
-        aggregate_data=aggregate_data)

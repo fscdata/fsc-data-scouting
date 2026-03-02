@@ -72,16 +72,52 @@
             <option value="0">did not attempt</option>
             <option value="1">attempted</option>
         </select>
-        <br /><hr />
+        <br />
 
-        <h4>Robot Issues (unusual events!)</h4>
+        <!-- STRATEGIES -->
+        <hr />
+        <h3>Strategies</h3>
+
+        <h4>Active Periods</h4>
+        <input type="checkbox" id="active_scored" name="active_scored" value="1">
+        <label for="active_scored">Scored Fuel?</label>
+        <br />
+        <input type="checkbox" id="active_ferrying" name="active_ferrying" value="1">
+        <label for="active_ferrying">Ferried Fuel?</label>
+        <br />
+        <input type="checkbox" id="active_defense" name="active_defense" value="1">
+        <label for="active_defense">Played defense?</label>
+        <br />
+
+        <h4>Inactive Periods</h4>
+        <input type="checkbox" id="inactive_scored" name="inactive_scored" value="1">
+        <label for="inactive_scored">Scored Fuel?</label>
+        <br />
+        <input type="checkbox" id="inactive_ferrying" name="inactive_ferrying" value="1">
+        <label for="inactive_ferrying">Ferried Fuel?</label>
+        <br />
+        <input type="checkbox" id="inactive_defense" name="inactive_defense" value="1">
+        <label for="inactive_defense">Played defense?</label>
+        <br />
+        <br />
+        <label for="strat_defense">Defensive Actions</label>
+        <br />
+        <button class="valueAdjust" onclick="minusOne('strat_defense');">-1</button>
+        <input class="numbox" type="number" id="strat_defense" name="strat_defense" value="0" min="0" required>
+        <button class="valueAdjust" onclick="plusOne('strat_defense');">+1</button>
 
         <!-- MISC -->
+        <hr />
+        <h4>Robot Issues (unusual events!)</h4>
+
         <input type="checkbox" id="tipped" name="tipped" value="1">
         <label for="tipped">Tipped?</label>
         <br />
         <input type="checkbox" id="broken" name="broken" value="1">
         <label for="broken">Broken?</label>
+        <br />
+        <input type="checkbox" id="beached" name="beached" value="1">
+        <label for="beached">Got stuck on Fuel?</label>
         <br />
         <input type="checkbox" id="carded" name="carded" value="1">
         <label for="carded">Red or Yellow Card?</label>
