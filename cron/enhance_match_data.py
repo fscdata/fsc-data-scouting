@@ -88,23 +88,27 @@ def find_team_records_needing_climb_data(event_code: str):
             .filter(Event.event_code == event_code)\
             .scalar()
         team_match_needs_enhancing = db.session\
-            .query(MatchTeamData.match_id, MatchTeamData.team_number)\
-            .filter(MatchTeamData.auto_climbed == None)\
+            .query(
+                MatchTeamData.match_number,
+                MatchTeamData.team_number)\
+            .filter(
+                MatchTeamData.auto_climbed == None,
+                MatchTeamData.event_id == event_id)\
             .all()
         print(team_match_needs_enhancing)
-        for match_id, team_number in team_match_needs_enhancing:
-            print(match_id, team_number)
-            auto_climb_dict, endgame_climb_dict = request_match_data(event_code, match_id)
+        for match_number, team_number in team_match_needs_enhancing:
+            print(match_number, team_number)
+            auto_climb_dict, endgame_climb_dict = request_match_data(event_code, match_number)
             if not team_number in auto_climb_dict or not auto_climb_dict or not endgame_climb_dict:
-                print(f'No climb data found for team {team_number} in match {match_id}, validate match data is correct and complete.')
+                print(f'No climb data found for team {team_number} in match {match_number}, validate match data is correct and complete.')
             else:
                 climb_result = auto_climb_dict[team_number]
                 endgame_climb_result = endgame_climb_dict[team_number]
-                print(f'Updating MatchTeamData for match {match_id} and team {team_number} with climb result {climb_result} and endgame climb result {endgame_climb_result}')
+                print(f'Updating MatchTeamData for match {match_number} and team {team_number} with climb result {climb_result} and endgame climb result {endgame_climb_result}')
                 db.session.query(MatchTeamData)\
                     .filter(
                         MatchTeamData.event_id == event_id,
-                        MatchTeamData.match_id == match_id,
+                        MatchTeamData.match_number == match_number,
                         MatchTeamData.team_number == team_number)\
                     .update({
                         MatchTeamData.auto_climbed: climb_result,

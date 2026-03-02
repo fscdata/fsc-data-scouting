@@ -2,8 +2,14 @@ import os
 import urllib.parse
 
 from flask import Flask
+from flask_basicauth import BasicAuth
+# BasicAuth still imported here for type hints if needed (extensions initializes it)
+
 from flask_migrate import Migrate  # Add this import
 from database_model import db, Event
+
+# import extension instances
+from extensions import basic_auth, migrate
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -32,11 +38,15 @@ def get_db_uri():
 app = Flask(__name__)
 
 # print(get_db_uri())
-app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
-db.init_app(app)  # Initialize the SQLAlchemy database with the app
 
-# Initialize Flask-Migrate
-migrate = Migrate(app, db)
+app.config['BASIC_AUTH_USERNAME'] = 'admin'
+app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('ADMIN_PASSWORD', 'default_password')
+app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
+
+# initialize extensions with the app
+db.init_app(app)
+basic_auth.init_app(app)
+migrate.init_app(app, db)
 
 # Register blueprints
 from routes.main_routes import bp as main_bp

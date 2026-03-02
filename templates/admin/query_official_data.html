@@ -1,0 +1,48 @@
+{% extends "base_admin.html" %}
+{% block content %}
+    <h3>Query Official Data from FIRST APIe</h3>
+
+    <div class="infoDiv">
+        <p>Use the buttons below to trigger background jobs to query official match schedule and match result data from the FIRST API for all active events. This will update the match schedule and match result data in the database with the official data from FIRST, which can be used to enhance the scouting data with official match times, opponent information, and climb data.</p>
+
+        <h3>Current Active Event: {{ active_event_data[0].event_code if active_event_data else "None" }}</h3>
+
+        <p>Push this button to fetch the official match schedule. CLICK ONLY ONCE PER EVENT.</p>
+        <form action="/admin/trigger_query_schedule" method="get">
+            <button type="submit">Query Official Match Schedule Data</button>
+        </form>
+
+        <p>Push this button ONCE after EACH match runs to update match results.</p>
+        <form action="/admin/trigger_query_match_data" method="get">
+            <button type="submit">Query Official Match Result Data</button>
+        </form>
+
+        <table>
+            <tr>
+                <th>Match Number</th>
+                <th>Red 1</th>
+                <th>Red 2</th>
+                <th>Red 3</th>
+                <th>Blue 1</th>
+                <th>Blue 2</th>
+                <th>Blue 3</th>
+                <th>Red RP</th>
+                <th>Blue RP</th>
+            </tr>
+            {% for match in event_match_data %}
+            <tr>
+                <td>{{ match.match_number }}</td>
+                <td>{{ match.red_1_id }}</td>
+                <td>{{ match.red_2_id }}</td>
+                <td>{{ match.red_3_id }}</td>
+                <td>{{ match.blue_1_id }}</td>
+                <td>{{ match.blue_2_id }}</td>
+                <td>{{ match.blue_3_id }}</td>
+                <td>{% if match.red_rp is not none %}{{ match.red_rp }}{% else %}--{% endif %}</td>
+                <td>{% if match.blue_rp is not none %}{{ match.blue_rp }}{% else %}--{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+{% endblock %}

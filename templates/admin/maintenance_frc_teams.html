@@ -1,13 +1,8 @@
-<!doctype html>
-<html>
-    <head>
-        <title>ADMIN MAINTENANCE: Update FRC Teams Table</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src={{ url_for('static', filename='js/main.js') }}></script>
-        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
-    </head>
-<body>
-    <div class="wrapperDiv">
+{% extends "base_admin.html" %}
+{% block content %}
+    <h3>FRC Teams Maintenance</h3>
+
+    <div class="infoDiv">
         <br />
         This page can add or remove records from the FRC Teams table.
         <br />
@@ -33,5 +28,4 @@
         {% endfor %}
 
     </div>
-</body>
-</html>
+{% endblock %}
