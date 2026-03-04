@@ -243,7 +243,7 @@ def request_match_data(event_id: int, match_number: int):
             MatchData.match_number == match_number)\
         .first()
     if match_climbs is None:
-        print(f'! Match number {match_number} not found for event {event_code}')
+        print(f'! Match number {match_number} not found for event ID {event_id}')
         auto_climb_dict = None
         endgame_climb_dict = None
     else:
