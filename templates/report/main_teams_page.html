@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Teams Reports</h1>
+
+    <p>Select team below to go to a detail page describing performance during {{ active_event_name }}</p>
+
+    <table>
+        <tr>
+            <th>Team Number</th>
+            <th>Team Name</th>
+            <th>Total Matches Played</th>
+        </tr>
+
+        {% for team in team_summary_data %}
+        <tr>
+            <td>
+                <a href="/report/team?number={{team.team_number}}">
+                {{ team.team_number }}
+                </a>
+            </td>
+            <td>
+                {{ team.team_name }}
+            </td>
+            <td>
+                count of matches<!-- {{ team.count_matches }} -->
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}
