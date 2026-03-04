@@ -28,7 +28,9 @@
             <th>Teleop Fuel Score</th>
             <th>Total Fuel Score</th>
             <th>Auto Climb Attempts</th>
+            <th>Auto Climb Level</th>
             <th>Endgame Climb Attempts</th>
+            <th>Endgame Climb Level</th>
         </tr>
         {% for record in team_records %}
         <tr>
@@ -37,7 +39,9 @@
             <td>{{record.teleop_fuel_score}}</td>
             <td>{{record.auto_fuel_score + record.teleop_fuel_score}}</td>
             <td>{{record.auto_climb_try}}</td>
+            <td>{{record.auto_climbed}}</td>
             <td>{{record.endgame_climb_try}}</td>
+            <td>{{record.endgame_climb_level}}</td>
         </tr>
         {% endfor %}
     </table>

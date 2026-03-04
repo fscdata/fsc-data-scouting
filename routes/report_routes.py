@@ -24,26 +24,25 @@ def calculate_climb_stats(MatchTeamData):
         prev_endgame_climbed = team_climb_stats['endgame_climbed']
         if match.auto_climb_try:
             team_climb_stats['auto_climb_try'] = prev_auto_climb_try + 1
-        if match.auto_climbed != 'None':
-            team_climb_stats['auto_climbed'] = prev_auto_climbed + 1
-
+            if match.auto_climbed != 'None':
+                team_climb_stats['auto_climbed'] = prev_auto_climbed + 1
         if match.endgame_climb_try:
             team_climb_stats['endgame_climb_try'] = prev_endgame_climb_try + 1
-        if match.endgame_climb_level != 'None':
-            team_climb_stats['endgame_climbed'] = prev_endgame_climbed + 1
+            if match.endgame_climb_level != 'None':
+                team_climb_stats['endgame_climbed'] = prev_endgame_climbed + 1
 
-        if team_climb_stats['auto_climb_try'] > 0:
-            successes = team_climb_stats['auto_climbed']
-            tries = team_climb_stats['auto_climb_try']
-            team_climb_stats['auto_climb_success'] = successes / tries
-        else:
-            team_climb_stats['auto_climb_success'] = 'Not applicable'
-        if team_climb_stats['endgame_climb_try'] > 0:
-            successes = team_climb_stats['endgame_climbed']
-            tries = team_climb_stats['endgame_climb_try']
-            team_climb_stats['endgame_climb_success'] = successes / tries
-        else:
-            team_climb_stats['endgame_climb_success'] = 'Not applicable'
+    if team_climb_stats['auto_climb_try'] > 0:
+        successes = team_climb_stats['auto_climbed']
+        tries = team_climb_stats['auto_climb_try']
+        team_climb_stats['auto_climb_success'] = successes / tries
+    else:
+        team_climb_stats['auto_climb_success'] = 'Not applicable'
+    if team_climb_stats['endgame_climb_try'] > 0:
+        successes = team_climb_stats['endgame_climbed']
+        tries = team_climb_stats['endgame_climb_try']
+        team_climb_stats['endgame_climb_success'] = successes / tries
+    else:
+        team_climb_stats['endgame_climb_success'] = 'Not applicable'
     return team_climb_stats
 
 @bp.route("/")
