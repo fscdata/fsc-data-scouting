@@ -6,6 +6,46 @@ from database_model import db, Team, MatchTeamData, MatchData, Event, Calculatio
 
 bp = Blueprint("report", __name__, url_prefix="/report")
 
+def calculate_climb_stats(MatchTeamData):
+    print(f'> Calculating climb stats for team')
+    # do some math to calculate average climb level and success rate for the team
+    team_climb_stats = {
+        'match_count': 0,
+        'auto_climb_try': 0,
+        'auto_climbed': 0,
+        'endgame_climb_try': 0,
+        'endgame_climbed': 0
+    }
+    for match in MatchTeamData:
+        team_climb_stats['match_count'] += 1
+        prev_auto_climb_try = team_climb_stats['auto_climb_try']
+        prev_auto_climbed = team_climb_stats['auto_climbed']
+        prev_endgame_climb_try = team_climb_stats['endgame_climb_try']
+        prev_endgame_climbed = team_climb_stats['endgame_climbed']
+        if match.auto_climb_try:
+            team_climb_stats['auto_climb_try'] = prev_auto_climb_try + 1
+        if match.auto_climbed != 'None':
+            team_climb_stats['auto_climbed'] = prev_auto_climbed + 1
+
+        if match.endgame_climb_try:
+            team_climb_stats['endgame_climb_try'] = prev_endgame_climb_try + 1
+        if match.endgame_climb_level != 'None':
+            team_climb_stats['endgame_climbed'] = prev_endgame_climbed + 1
+
+        if team_climb_stats['auto_climb_try'] > 0:
+            successes = team_climb_stats['auto_climbed']
+            tries = team_climb_stats['auto_climb_try']
+            team_climb_stats['auto_climb_success'] = successes / tries
+        else:
+            team_climb_stats['auto_climb_success'] = 'Not applicable'
+        if team_climb_stats['endgame_climb_try'] > 0:
+            successes = team_climb_stats['endgame_climbed']
+            tries = team_climb_stats['endgame_climb_try']
+            team_climb_stats['endgame_climb_success'] = successes / tries
+        else:
+            team_climb_stats['endgame_climb_success'] = 'Not applicable'
+    return team_climb_stats
+
 @bp.route("/")
 def report_landing_page():
     print(' > Rendering report landing page')
@@ -120,10 +160,11 @@ def report_team_page():
                 MatchTeamData.event_id == active_event_id)\
             .all()
         print(team_records)
+        team_climb_stats = calculate_climb_stats(team_records)
         return render_template(
             'report/team_report_page.html',
             team_records=team_records,
-            aggregate_data=None)
+            team_climb_stats=team_climb_stats)
 
 @bp.route("/raw/", methods = ['POST', 'GET'])
 def report_page():

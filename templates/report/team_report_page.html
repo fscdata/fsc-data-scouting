@@ -13,10 +13,10 @@
             {{(team_records|sum(attribute='auto_fuel_score') + team_records|sum(attribute='teleop_fuel_score') | float) / team_records|length if team_records else 0}}</li>
         <li>
             Average auto climb attempts:
-            {{team_records|sum(attribute='auto_climb_try') / team_records|length if team_records else 0}}</li>
+            {{ team_climb_stats['auto_climb_success'] }}</li>
         <li>
             Average endgame climb attempts:
-            {{team_records|sum(attribute='endgame_climb_try') / team_records|length if team_records else 0}}</li>
+            {{ team_climb_stats['endgame_climb_success'] }}</li>
     </ul>
 
     <h4>Match Records</h4>

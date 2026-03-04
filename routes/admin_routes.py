@@ -178,4 +178,5 @@ def trigger_query_match_data():
     print(' > Triggering job to query official match result data from FIRST API')
     # kick off external script to query official match result data from FIRST API
     os.system('python cron/query_official_match_data.py')
+    os.system('python cron/enhance_match_data.py')
     return redirect('/admin/query_official_data')
