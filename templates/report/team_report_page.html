@@ -3,6 +3,21 @@
     <h1>Team {{team_number}} Report</h1>
 
     <h4>Average Information</h4>
+    
+    <ul>
+        <li>
+            Total matches played:
+            {{team_records|length}}</li>
+        <li>
+            Average total fuel score:
+            {{(team_records|sum(attribute='auto_fuel_score') + team_records|sum(attribute='teleop_fuel_score') | float) / team_records|length if team_records else 0}}</li>
+        <li>
+            Average auto climb attempts:
+            {{team_records|sum(attribute='auto_climb_try') / team_records|length if team_records else 0}}</li>
+        <li>
+            Average endgame climb attempts:
+            {{team_records|sum(attribute='endgame_climb_try') / team_records|length if team_records else 0}}</li>
+    </ul>
 
     <h4>Match Records</h4>
 

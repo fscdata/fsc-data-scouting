@@ -2,7 +2,7 @@ import csv
 from datetime import datetime
 from io import StringIO
 from flask import Blueprint, make_response, render_template, request
-from database_model import db, MatchTeamData, MatchData, Event, Calculation
+from database_model import db, Team, MatchTeamData, MatchData, Event, Calculation
 
 bp = Blueprint("report", __name__, url_prefix="/report")
 
@@ -81,28 +81,57 @@ def report_match_page():
 
 @bp.route("/team")
 def report_team_page():
+    active_event_id = db.session\
+        .query(Event.event_id)\
+        .filter(Event.event_currently_active == 1)\
+        .scalar()
+    active_event_name = db.session\
+        .query(Event.event_name)\
+        .filter(Event.event_currently_active == 1)\
+        .scalar()
     team_number = request.args.get('number')
-    print(f' > Rendering team report page for team number {team_number}')
     if team_number is None:
-        error_message = 'No team number provided. Please enter a team number in the URL, such as /report/team?number=123.'
-        print(f' ! {error_message}')
-        return render_template('error.html', error_message=error_message)
-    team_records = db.session\
-        .query(MatchTeamData)\
-        .filter(MatchTeamData.team_number == team_number).all()
-    print(team_records)
-    # aggregate_data = db.session.query(Calculation)\
-    #     .filter(Calculation.calculation_name == 'event_climb')\
-    #     .first()
-    return render_template(
-        'report/team_report_page.html',
-        team_records=team_records,
-        aggregate_data=None)
+        print(f' > Rendering all teams with links')
+        team_summary_data = db.session\
+            .query(
+                MatchTeamData.team_number,
+                Team.team_name)\
+            .filter(MatchTeamData.event_id == active_event_id)\
+            .join(Team, MatchTeamData.team_number == Team.team_id)\
+            .group_by(MatchTeamData.team_number)\
+            .all()
+        print(team_summary_data)
+        # # count number of teams and print to console
+        # team_count = db.session\
+        #     .query(MatchTeamData.team_number)\
+        #     .group_by(MatchTeamData.team_number)\
+        #     .count()
+        # print(team_count)
+        return render_template(
+            'report/main_teams_page.html',
+            team_summary_data=team_summary_data,
+            active_event_name=active_event_name)
+    else:
+        print(f' > Rendering team report page for team number {team_number}')
+        team_records = db.session\
+            .query(MatchTeamData)\
+            .filter(
+                MatchTeamData.team_number == team_number,
+                MatchTeamData.event_id == active_event_id)\
+            .all()
+        print(team_records)
+        return render_template(
+            'report/team_report_page.html',
+            team_records=team_records,
+            aggregate_data=None)
 
 @bp.route("/raw/", methods = ['POST', 'GET'])
 def report_page():
     print(' > Rendering report page')
-    active_event_id = db.session.query(Event.event_id).filter(Event.event_currently_active == 1).scalar()
+    active_event_id = db.session\
+        .query(Event.event_id)\
+        .filter(Event.event_currently_active == 1)\
+        .scalar()
     
     display_event_id = request.form.get('event_id')
     if not display_event_id:

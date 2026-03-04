@@ -128,8 +128,16 @@ def toggle_active_events():
         return redirect('/admin/maintenance_active_events')
 
 '''
-trigger external jobs to query FIRST API
+trigger external jobs
 '''
+@bp.route("/do_some_math")
+@basic_auth.required
+def trigger_calculate_report_data():
+    print(' > Triggering job to calculate report data')
+    # kick off external script to calculate report data
+    os.system('python cron/calculate_report_data.py')
+    return redirect('/admin/')
+
 @bp.route("/query_official_data")
 @basic_auth.required
 def trigger_query_official_data():
