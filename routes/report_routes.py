@@ -71,26 +71,26 @@ def deliver_csv_file():
 
         all_match_data = db.session\
             .query(MatchTeamData)\
-            .filter(MatchTeamData.event_id == event_id, MatchTeamData.match_id >= min_match_id).all()
-
-        # drop a few columns that aren't needed for export
-        columns_to_exclude = ['event_id', 'record_ip_address', 'record_hidden']
-        all_match_data = [row for row in all_match_data if not any(getattr(row, col) is not None for col in columns_to_exclude)]
+            .filter(MatchTeamData.event_id == event_id, MatchTeamData.match_number >= min_match_id).all()
 
         print(f' > Exporting {len(all_match_data)} records to CSV file {export_filename}')
         if not all_match_data:
-            print(' > No data to export')
+            error_message = 'No mtach data has been scouted yet, the CSV is empty. Please try again later.'
+            print(f' ! {error_message}')
+            return render_template('error.html', error_message=error_message)
         else:
-            columns = [col for col in all_match_data[0].__table__.columns if col.name != 'match_team_id']
-            print(f' > Column names: {[col.name for col in columns]}')
+            # drop metadata columns that aren't needed for export
+            columns_to_exclude = ['event_id', 'record_ip_address', 'record_hidden']
+            columns = [col for col in all_match_data[0].__table__.columns if col.name not in columns_to_exclude]
+            # print(f' > Column names: {[col.name for col in columns]}')
 
             cw.writerow([col.name for col in columns])
             cw.writerows([tuple(getattr(row, col.name) for col in columns) for row in all_match_data])
 
-        output = make_response(si.getvalue())
-        output.headers["Content-Disposition"] = f"attachment; filename={export_filename}"
-        output.headers["Content-type"] = "text/csv"
-        return output
+            output = make_response(si.getvalue())
+            output.headers["Content-Disposition"] = f"attachment; filename={export_filename}"
+            output.headers["Content-type"] = "text/csv"
+            return output
 
 @bp.route("/event")
 def report_event_page():
