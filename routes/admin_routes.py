@@ -272,7 +272,7 @@ def request_match_data(event_id: int, match_number: int):
     #     match_climbs.blue_2_id: match_climbs.blue_rp,
     #     match_climbs.blue_3_id: match_climbs.blue_rp,
     # }
-    
+
     return auto_climb_dict, endgame_climb_dict
 
 def enhance_match_team_data():
@@ -292,7 +292,7 @@ def enhance_match_team_data():
     for match_number, team_number in team_match_needs_enhancing:
         print(match_number, team_number)
         auto_climb_dict, endgame_climb_dict = request_match_data(event_id, match_number)
-        if not auto_climb_dict or not endgame_climb_dict:
+        if auto_climb_dict is not None and endgame_climb_dict is not None:
             if not team_number in auto_climb_dict:
                 print(f'No climb data found for team {team_number} in match {match_number}, validate match data is correct and complete.')
             else:
