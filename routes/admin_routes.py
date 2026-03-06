@@ -43,50 +43,52 @@ def api_call_schedule_data(event_year, match_level = 'Qualification'):
 
     # call FIRST API to get match schedule data for the event
     match_schedule_url = f'{first_api_base_url}/{event_year}/matches/{event_code}?tournamentLevel={match_level}'
-    print(match_schedule_url)
+    # print(match_schedule_url)
 
     headers = get_api_token()
 
     schedule_response  = requests.get(match_schedule_url, headers=headers)
     print(f'Status Code: {schedule_response.status_code}')
+    if not schedule_response.status_code == 200:
+        error_message = f'FIRST API call failed, status code {schedule_response.status_code}. FIND SCOUTING PROGRAMMER ASAP.'
+        print(f' !!! {error_message}')
     if schedule_response.status_code == 200:
         match_schedule_data = schedule_response.json()
+        for match in match_schedule_data['Matches']:
+            match_number = match['matchNumber']
+            print(f' > Processing match {match_number} from schedule data')
+            for i in range(6):
+                team_record = match['teams'][i]
+                # print(f"Station: {team_record['station']}, Team Number: {team_record['teamNumber']}")
+                if team_record['station'] == 'Red1':
+                    red_1_id = team_record['teamNumber']
+                elif team_record['station'] == 'Red2':
+                    red_2_id = team_record['teamNumber']
+                elif team_record['station'] == 'Red3':
+                    red_3_id = team_record['teamNumber']
+                elif team_record['station'] == 'Blue1':
+                    blue_1_id = team_record['teamNumber']
+                elif team_record['station'] == 'Blue2':
+                    blue_2_id = team_record['teamNumber']
+                elif team_record['station'] == 'Blue3':
+                    blue_3_id = team_record['teamNumber']
 
-    for match in match_schedule_data['Matches']:
-        match_number = match['matchNumber']
-        print(f' > Processing match {match_number} from schedule data')
-        for i in range(6):
-            team_record = match['teams'][i]
-            # print(f"Station: {team_record['station']}, Team Number: {team_record['teamNumber']}")
-            if team_record['station'] == 'Red1':
-                red_1_id = team_record['teamNumber']
-            elif team_record['station'] == 'Red2':
-                red_2_id = team_record['teamNumber']
-            elif team_record['station'] == 'Red3':
-                red_3_id = team_record['teamNumber']
-            elif team_record['station'] == 'Blue1':
-                blue_1_id = team_record['teamNumber']
-            elif team_record['station'] == 'Blue2':
-                blue_2_id = team_record['teamNumber']
-            elif team_record['station'] == 'Blue3':
-                blue_3_id = team_record['teamNumber']
+            # structure data into MatchData object and push to database
+            match_record = MatchData(
+                event_id=event_id,
+                match_number=match_number,
+                match_type=match_level,
+                red_1_id=red_1_id,
+                red_2_id=red_2_id,
+                red_3_id=red_3_id,
+                blue_1_id=blue_1_id,
+                blue_2_id=blue_2_id,
+                blue_3_id=blue_3_id
+            )
 
-        # structure data into MatchData object and push to database
-        match_record = MatchData(
-            event_id=event_id,
-            match_number=match_number,
-            match_type=match_level,
-            red_1_id=red_1_id,
-            red_2_id=red_2_id,
-            red_3_id=red_3_id,
-            blue_1_id=blue_1_id,
-            blue_2_id=blue_2_id,
-            blue_3_id=blue_3_id
-        )
-
-        db.session.add(match_record)
-        db.session.commit()
-        print(f'Match data for match {match_number} successfully added to database.')
+            db.session.add(match_record)
+            db.session.commit()
+            print(f' > Match data for match {match_number} successfully added to database.')
 
 def find_next_match_to_query():
     event_id = db.session\
@@ -94,19 +96,19 @@ def find_next_match_to_query():
         .filter(Event.event_currently_active == True)\
         .scalar()
 
-    # query maximum match_id in local database for the given event_id
-    max_match_id = db.session\
-        .query(db.func.max(MatchData.match_id))\
+    # query maximum match_number in local database for the given event_id
+    max_match_number = db.session\
+        .query(db.func.max(MatchData.match_number))\
         .filter(MatchData.event_id == event_id, MatchData.red_rp != None)\
         .scalar()
 
-    if max_match_id is not None:
-        print(f'Most recent match results for event {event_id}: Match {max_match_id}')
-        next_match_id = max_match_id + 1
-        print(f'Next match to query for event {event_id}: Match {next_match_id}')
-        return next_match_id
+    if max_match_number is not None:
+        print(f' >> Most recent match results for event {event_id}: Match {max_match_number}')
+        next_match_number = max_match_number + 1
+        print(f' >> Next match to query for event {event_id}: Match {next_match_number}')
+        return next_match_number
     else:
-        print(f'No match results found yet for event {event_id}.')
+        print(f' >> No match results found yet for event {event_id}.')
         return 1
 
 def api_call_match_data(match_number, match_level = 'Qualification'):
@@ -114,7 +116,7 @@ def api_call_match_data(match_number, match_level = 'Qualification'):
         .query(Event.event_id, Event.event_code, Event.event_year)\
         .filter(Event.event_currently_active == True)\
         .all()
-    print(event_info)
+
     event_id = event_info[0][0]
     event_code = event_info[0][1]
     event_year = event_info[0][2]
@@ -126,94 +128,96 @@ def api_call_match_data(match_number, match_level = 'Qualification'):
             MatchData.match_number == match_number)\
         .first()
     if not existing_match:
-        print(f'No existing match record found for match {match_number}, unable to update match results. Please check that match schedule data has been properly ingested for this match.')
+        print(f' ! No existing match record found for match {match_number}, unable to update match results. Please check that match schedule data has been properly ingested for this match.')
     else:
         single_match_scores_url = f'{first_api_base_url}/{event_year}/scores/{event_code}/{match_level}?matchNumber={match_number}'
         headers = get_api_token()
-        print(single_match_scores_url)
+        # print(single_match_scores_url)
 
         single_match_response = requests.get(single_match_scores_url, headers=headers)
         # print response status
         print(f'Status Code: {single_match_response.status_code}')
-        if single_match_response.status_code == 200:
-            # data = response.content.decode("utf-8")
+        if not single_match_response.status_code == 200:
+            error_message = f'FIRST API call failed, status code {single_match_response.status_code}. FIND SCOUTING PROGRAMMER ASAP.'
+            print(f' !!! {error_message}')
+        else:
             # convert to json for sanity
             single_match_score_data = single_match_response.json()
 
-        if len(single_match_score_data['MatchScores']) == 0:
-            print(f'Match {match_number} not found in score data, validate it is completed and posted.')
-            return
+            if len(single_match_score_data['MatchScores']) == 0:
+                print(f'Match {match_number} not found in score data, validate it is completed and posted.')
+                return
 
-        match_dict = single_match_score_data['MatchScores'][0]
+            match_dict = single_match_score_data['MatchScores'][0]
 
-        match_number = match_dict['matchNumber']
-        match_type = match_dict['matchLevel']
+            match_number = match_dict['matchNumber']
+            match_type = match_dict['matchLevel']
 
-        if match_dict['alliances'][0]['alliance'] == 'Red':
-            red_dict = match_dict['alliances'][0]
-            blue_dict = match_dict['alliances'][1]
-        else:
-            red_dict = match_dict['alliances'][1]
-            blue_dict = match_dict['alliances'][0]
+            if match_dict['alliances'][0]['alliance'] == 'Red':
+                red_dict = match_dict['alliances'][0]
+                blue_dict = match_dict['alliances'][1]
+            else:
+                red_dict = match_dict['alliances'][1]
+                blue_dict = match_dict['alliances'][0]
 
-        if not 'rp' in red_dict or not 'rp' in blue_dict:
-            print('RP data not found for both alliances, validate match is completed and posted.')
-            print(red_dict)
-            print(blue_dict)
-            return
+            if not 'rp' in red_dict or not 'rp' in blue_dict:
+                print('RP data not found for both alliances, validate match is completed and posted.')
+                # print(red_dict)
+                # print(blue_dict)
+                return
 
-        red_rp = red_dict['rp']
-        if red_rp is None:
-            red_rp = 0
-        blue_rp = blue_dict['rp']
-        if blue_rp is None:
-            blue_rp = 0
+            red_rp = red_dict['rp']
+            if red_rp is None:
+                red_rp = 0
+            blue_rp = blue_dict['rp']
+            if blue_rp is None:
+                blue_rp = 0
 
-        if not 'hubScore' in red_dict or not 'hubScore' in blue_dict:
-            print('hubScore data not found for both alliances, validate match is completed and posted.')
-            print(red_dict)
-            print(blue_dict)
-            return
-        red_auto_score = red_dict['hubScore']['autoPoints']
-        blue_auto_score = blue_dict['hubScore']['autoPoints']
-        red_teleop_score = red_dict['hubScore']['teleopPoints']
-        blue_teleop_score = blue_dict['hubScore']['teleopPoints']
+            if not 'hubScore' in red_dict or not 'hubScore' in blue_dict:
+                print('hubScore data not found for both alliances, validate match is completed and posted.')
+                # print(red_dict)
+                # print(blue_dict)
+                return
+            red_auto_score = red_dict['hubScore']['autoPoints']
+            blue_auto_score = blue_dict['hubScore']['autoPoints']
+            red_teleop_score = red_dict['hubScore']['teleopPoints']
+            blue_teleop_score = blue_dict['hubScore']['teleopPoints']
 
-        red_1_auto_climb = red_dict['autoTowerRobot1']
-        blue_1_auto_climb = blue_dict['autoTowerRobot1']
-        red_2_auto_climb = red_dict['autoTowerRobot2']
-        blue_2_auto_climb = blue_dict['autoTowerRobot2']
-        red_3_auto_climb = red_dict['autoTowerRobot3']
-        blue_3_auto_climb = blue_dict['autoTowerRobot3']
+            red_1_auto_climb = red_dict['autoTowerRobot1']
+            blue_1_auto_climb = blue_dict['autoTowerRobot1']
+            red_2_auto_climb = red_dict['autoTowerRobot2']
+            blue_2_auto_climb = blue_dict['autoTowerRobot2']
+            red_3_auto_climb = red_dict['autoTowerRobot3']
+            blue_3_auto_climb = blue_dict['autoTowerRobot3']
 
-        red_1_endgame_climb = red_dict['endGameTowerRobot1']
-        red_2_endgame_climb = red_dict['endGameTowerRobot2']
-        red_3_endgame_climb = red_dict['endGameTowerRobot3']
-        blue_1_endgame_climb = blue_dict['endGameTowerRobot1']
-        blue_2_endgame_climb = blue_dict['endGameTowerRobot2']
-        blue_3_endgame_climb = blue_dict['endGameTowerRobot3']
+            red_1_endgame_climb = red_dict['endGameTowerRobot1']
+            red_2_endgame_climb = red_dict['endGameTowerRobot2']
+            red_3_endgame_climb = red_dict['endGameTowerRobot3']
+            blue_1_endgame_climb = blue_dict['endGameTowerRobot1']
+            blue_2_endgame_climb = blue_dict['endGameTowerRobot2']
+            blue_3_endgame_climb = blue_dict['endGameTowerRobot3']
 
-        # update database record for the match with the new data
-        existing_match.red_rp = red_rp
-        existing_match.blue_rp = blue_rp
-        existing_match.red_auto_score = red_auto_score
-        existing_match.red_teleop_score = red_teleop_score
-        existing_match.blue_auto_score = blue_auto_score
-        existing_match.blue_teleop_score = blue_teleop_score
-        existing_match.red_1_auto_climb = red_1_auto_climb
-        existing_match.red_2_auto_climb = red_2_auto_climb
-        existing_match.red_3_auto_climb = red_3_auto_climb
-        existing_match.blue_1_auto_climb = blue_1_auto_climb
-        existing_match.blue_2_auto_climb = blue_2_auto_climb
-        existing_match.blue_3_auto_climb = blue_3_auto_climb
-        existing_match.red_1_endgame_climb = red_1_endgame_climb
-        existing_match.red_2_endgame_climb = red_2_endgame_climb
-        existing_match.red_3_endgame_climb = red_3_endgame_climb
-        existing_match.blue_1_endgame_climb = blue_1_endgame_climb
-        existing_match.blue_2_endgame_climb = blue_2_endgame_climb
-        existing_match.blue_3_endgame_climb = blue_3_endgame_climb
-        db.session.commit()
-        print(f'Match data for match {match_number} successfully updated in database.')
+            # update database record for the match with the new data
+            existing_match.red_rp = red_rp
+            existing_match.blue_rp = blue_rp
+            existing_match.red_auto_score = red_auto_score
+            existing_match.red_teleop_score = red_teleop_score
+            existing_match.blue_auto_score = blue_auto_score
+            existing_match.blue_teleop_score = blue_teleop_score
+            existing_match.red_1_auto_climb = red_1_auto_climb
+            existing_match.red_2_auto_climb = red_2_auto_climb
+            existing_match.red_3_auto_climb = red_3_auto_climb
+            existing_match.blue_1_auto_climb = blue_1_auto_climb
+            existing_match.blue_2_auto_climb = blue_2_auto_climb
+            existing_match.blue_3_auto_climb = blue_3_auto_climb
+            existing_match.red_1_endgame_climb = red_1_endgame_climb
+            existing_match.red_2_endgame_climb = red_2_endgame_climb
+            existing_match.red_3_endgame_climb = red_3_endgame_climb
+            existing_match.blue_1_endgame_climb = blue_1_endgame_climb
+            existing_match.blue_2_endgame_climb = blue_2_endgame_climb
+            existing_match.blue_3_endgame_climb = blue_3_endgame_climb
+            db.session.commit()
+            print(f'Match data for match {match_number} successfully updated in database.')
 
 def request_match_data(event_id: int, match_number: int):
     match_climbs = db.session\
@@ -288,9 +292,9 @@ def enhance_match_team_data():
             MatchTeamData.auto_climbed == None,
             MatchTeamData.event_id == event_id)\
         .all()
-    print(team_match_needs_enhancing)
+    # print(team_match_needs_enhancing)
     for match_number, team_number in team_match_needs_enhancing:
-        print(match_number, team_number)
+        # print(match_number, team_number)
         auto_climb_dict, endgame_climb_dict = request_match_data(event_id, match_number)
         if auto_climb_dict is not None and endgame_climb_dict is not None:
             if not team_number in auto_climb_dict:
@@ -330,10 +334,6 @@ def admin_maintenance_frc_teams():
 @basic_auth.required
 def add_new_team():
     if request.method == 'POST':
-        print(request.form)
-        form_dict = request.form.to_dict(flat=False)
-        print(form_dict)
-
         new_team_data = {
             'team_id': int(request.form.get('team_number', 0)),
             'team_name': request.form.get('team_name', ''),
@@ -374,10 +374,6 @@ def admin_maintenance_active_events():
 @basic_auth.required
 def add_new_active_event():
     if request.method == 'POST':
-        print(request.form)
-        form_dict = request.form.to_dict(flat=False)
-        print(form_dict)
-
         # capture fields from form
         new_event_data = {
             'event_code': request.form.get('event_code', ''),
@@ -462,7 +458,7 @@ def trigger_query_official_data():
             MatchData.blue_rp)\
         .filter(MatchData.event_id.in_([event.event_id for event in active_event_data]))\
         .all()
-    print(event_match_data)
+    # print(event_match_data)
     return render_template(
         'admin/query_official_data.html',
         active_event_data=active_event_data,
