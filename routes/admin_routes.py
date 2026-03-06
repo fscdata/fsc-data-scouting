@@ -219,7 +219,7 @@ def api_call_match_data(match_number, match_level = 'Qualification'):
             db.session.commit()
             print(f'Match data for match {match_number} successfully updated in database.')
 
-def request_match_data(event_id: int, match_number: int):
+def request_api_match_data(event_id: int, match_number: int):
     match_climbs = db.session\
         .query(
             MatchData.red_1_id,
@@ -295,7 +295,7 @@ def enhance_match_team_data():
     # print(team_match_needs_enhancing)
     for match_number, team_number in team_match_needs_enhancing:
         # print(match_number, team_number)
-        auto_climb_dict, endgame_climb_dict = request_match_data(event_id, match_number)
+        auto_climb_dict, endgame_climb_dict = request_api_match_data(event_id, match_number)
         if auto_climb_dict is not None and endgame_climb_dict is not None:
             if not team_number in auto_climb_dict:
                 print(f'No climb data found for team {team_number} in match {match_number}, validate match data is correct and complete.')
@@ -321,6 +321,9 @@ def enhance_match_team_data():
 def admin_index():
     return render_template('admin/admin_navigation.html')
 
+'''
+maintain Teams tables
+'''
 @bp.route("/maintenance_frc_teams")
 @basic_auth.required
 def admin_maintenance_frc_teams():
@@ -355,13 +358,16 @@ def add_new_team():
 def update_frc_teams():
     team_number = request.args.get('team', 0)
     print(f' > Attempting to remove team {team_number}')
-    db.session.query(Team).filter(Team.team_id == team_number).delete()
+    db.session\
+        .query(Team)\
+        .filter(Team.team_id == team_number)\
+        .delete()
     db.session.commit()
     print(f' > Successfully removed team {team_number}')
     return redirect('/admin/maintenance_frc_teams')
 
 '''
-Admin routes for maintaining Active Events table
+maintain Active Events table
 '''
 @bp.route("/maintenance_active_events")
 @basic_auth.required
@@ -400,7 +406,10 @@ def add_new_active_event():
 def update_events():
     event_id = request.args.get('event', 0)
     print(f' > Attempting to remove event {event_id}')
-    db.session.query(Event).filter(Event.event_id == event_id).delete()
+    db.session\
+        .query(Event)\
+        .filter(Event.event_id == event_id)\
+        .delete()
     db.session.commit()
     print(f' > Successfully removed event {event_id}')
     return redirect('/admin/maintenance_active_events')
@@ -416,19 +425,88 @@ def toggle_active_events():
         return redirect('/admin/maintenance_active_events')
     if event.event_currently_active:
         # If the event is currently active, set it to inactive
-        db.session.query(Event).filter(Event.event_id == event_id).update({Event.event_currently_active: False})
+        db.session\
+            .query(Event)\
+            .filter(Event.event_id == event_id)\
+            .update({Event.event_currently_active: False})
         db.session.commit()
         print(f' > Successfully deactivated event {event_id}')
         return redirect('/admin/maintenance_active_events')
     if not event.event_currently_active:
         # If the event is currently inactive, set it to active
-        db.session.query(Event).filter(Event.event_id == event_id).update({Event.event_currently_active: True})
+        db.session\
+            .query(Event)\
+            .filter(Event.event_id == event_id)\
+            .update({Event.event_currently_active: True})
         db.session.commit()
         print(f' > Successfully activated event {event_id}')
         return redirect('/admin/maintenance_active_events')
 
 '''
-trigger external jobs
+fiddle with the data
+'''
+@bp.route("/data_adjustments")
+@basic_auth.required
+def risky_business():
+    fix_record_id = request.args.get('record')
+
+    if fix_record_id:
+        print(fix_record_id)
+        raw_data_query = db.session\
+            .query(MatchTeamData)\
+            .filter(MatchTeamData.record_id == fix_record_id)\
+            .scalar()
+        print(raw_data_query.record_id)
+        return render_template(
+            'admin/adjust_specific_record.html',
+            original_record_id=fix_record_id,
+            match_data=raw_data_query)
+    
+    else:
+        active_event_id = db.session\
+            .query(Event.event_id)\
+            .filter(Event.event_currently_active == True)\
+            .scalar()
+        full_raw_data_query = db.session\
+            .query(MatchTeamData)\
+            .filter(MatchTeamData.event_id == active_event_id)\
+            .order_by(
+                MatchTeamData.event_id,
+                MatchTeamData.match_number,
+                MatchTeamData.team_number)\
+            .all()
+        return render_template(
+            'admin/adjust_data.html',
+            match_data=full_raw_data_query)
+
+@bp.route("/hide")
+@basic_auth.required
+def hide_the_bad():
+    hide_record_id = request.args.get('record')
+
+    if not hide_record_id:
+        return redirect('/admin/data_adjustments')
+    else:
+        print(f' !! > hiding record ID {hide_record_id}')
+        currently_hidden = db.session\
+            .query(MatchTeamData.record_hidden)\
+            .filter(MatchTeamData.record_id == hide_record_id)\
+            .scalar()
+        if currently_hidden:
+            db.session\
+                .query(MatchTeamData)\
+                .filter(MatchTeamData.record_id == hide_record_id)\
+                .update({MatchTeamData.record_hidden: False})
+        else:
+            db.session\
+                .query(MatchTeamData)\
+                .filter(MatchTeamData.record_id == hide_record_id)\
+                .update({MatchTeamData.record_hidden: True})
+        db.session.commit()
+        return redirect('/admin/data_adjustments')
+
+'''
+trigger backend / external data updates
 '''
 @bp.route("/do_some_math")
 @basic_auth.required

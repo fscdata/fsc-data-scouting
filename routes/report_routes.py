@@ -75,7 +75,7 @@ def deliver_csv_file():
 
         print(f' > Exporting {len(all_match_data)} records to CSV file {export_filename}')
         if not all_match_data:
-            error_message = 'No mtach data has been scouted yet, the CSV is empty. Please try again later.'
+            error_message = 'No match data has been scouted yet, the CSV is empty. Please try again later.'
             print(f' ! {error_message}')
             return render_template('error.html', error_message=error_message)
         else:
