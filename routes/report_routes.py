@@ -1,3 +1,5 @@
+import os
+import requests
 import csv
 from datetime import datetime
 from io import StringIO
@@ -5,6 +7,45 @@ from flask import Blueprint, make_response, render_template, request
 from database_model import db, Team, MatchTeamData, MatchData, Event, Calculation
 
 bp = Blueprint("report", __name__, url_prefix="/report")
+
+def pull_TBA_stats(team_stats):
+    tba_api_key = os.environ.get('TBA_API_KEY')
+
+    base_tba_url = 'https://www.thebluealliance.com/api/v3'
+
+    if not tba_api_key:
+        print("Error: Blue Alliance API credentials not found in environment variables.")
+        exit(1)
+    headers = {
+        'X-TBA-Auth-Key' : tba_api_key
+    }
+
+    event_key = '2026sccha'
+    stats_endpoint_url = f'{base_tba_url}/event/{event_key}/oprs'
+
+    event_stats_response = requests.get(stats_endpoint_url, headers=headers)
+    print(f'Status Code: {event_stats_response.status_code}')
+    if not event_stats_response.status_code == 200:
+        print('api error')
+    else:
+        event_stats_data = event_stats_response.json()
+
+        tba_opr = {
+            team[3:]: round(event_stats_data['oprs'][team], 2)
+            for team in event_stats_data['oprs']}
+        tba_dpr = {
+            team[3:]: round(event_stats_data['dprs'][team], 2)
+            for team in event_stats_data['dprs']}
+        tba_ccwm = {
+            team[3:]: round(event_stats_data['ccwms'][team], 2)
+            for team in event_stats_data['ccwms']}
+
+        print(team_stats)
+        for team in team_stats:
+            team_stats[team]['opr'] = tba_opr[f'{team}']
+            team_stats[team]['dpr'] = tba_dpr[f'{team}']
+            team_stats[team]['ccwm'] = tba_ccwm[f'{team}']
+    return team_stats
 
 def calculate_climb_stats(MatchTeamData):
     print(f'> Calculating climb stats for team')
@@ -162,7 +203,10 @@ def report_team_page():
                 {'team_name': team_data[1],
                  'match_count': 0,
                  'total_fuel': 0,
-                 'avg_fuel': 0}
+                 'avg_fuel': 0,
+                 'opr': 0,
+                 'dpr': 0,
+                 'ccwm': 0}
                 for team_data in team_summary_data}
         team_performance_data = db.session\
             .query(
@@ -182,10 +226,11 @@ def report_team_page():
                 team_stats[team]['avg_fuel'] = round(
                     team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
                     2)
+        full_team_stats = pull_TBA_stats(team_stats)
 
         return render_template(
             'report/main_teams_page.html',
-            team_stats=team_stats,
+            team_stats=full_team_stats,
             active_event_name=active_event_name)
     else:
         print(f' > Rendering team report page for team number {team_number}')
@@ -229,6 +274,9 @@ def report_page():
         .filter(
             MatchTeamData.event_id == display_event_id,
             MatchTeamData.record_hidden == False)\
+        .order_by(
+            MatchTeamData.match_number,
+            MatchTeamData.team_number)\
         .all()
     return render_template(
         'report/report_raw_matchdata.html',

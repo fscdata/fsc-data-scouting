@@ -12,8 +12,11 @@
         <tr>
             <th>Team Number</th>
             <th>Team Name</th>
-            <th>Total Matches Played</th>
-            <th>Average Total Fuel</th>
+            <th>Matches Scouted</th>
+            <th>Avg Total Fuel</th>
+            <th>TBA OPR</th>
+            <th>TBA DPR</th>
+            <th>TBA CCWM</th>
         </tr>
 
         {% for team in team_stats %}
@@ -31,6 +34,15 @@
             </td>
             <td>
                 {{ team_stats[team]['avg_fuel'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['opr'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['dpr'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['ccwm'] }}
             </td>
         </tr>
         {% endfor %}
