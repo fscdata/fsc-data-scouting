@@ -22,6 +22,7 @@ def pull_TBA_stats(team_stats):
 
     event_key = '2026sccha'
     stats_endpoint_url = f'{base_tba_url}/event/{event_key}/oprs'
+    rankings_endpoint_url = f'{base_tba_url}/event/{event_key}/rankings'
 
     event_stats_response = requests.get(stats_endpoint_url, headers=headers)
     print(f'Status Code: {event_stats_response.status_code}')
@@ -40,11 +41,24 @@ def pull_TBA_stats(team_stats):
             team[3:]: round(event_stats_data['ccwms'][team], 2)
             for team in event_stats_data['ccwms']}
 
-        print(team_stats)
+        # print(team_stats)
         for team in team_stats:
             team_stats[team]['opr'] = tba_opr[f'{team}']
             team_stats[team]['dpr'] = tba_dpr[f'{team}']
             team_stats[team]['ccwm'] = tba_ccwm[f'{team}']
+
+    rankings_response = requests.get(rankings_endpoint_url, headers=headers)
+    print(f'Status Code: {rankings_response.status_code}')
+    if not rankings_response.status_code == 200:
+        print('api error')
+    else:
+        rankings_data = rankings_response.json()
+        tba_rank = {
+            team['team_key'][3:]: team['rank']
+            for team in rankings_data['rankings']}
+        for team in team_stats:
+            team_stats[team]['tba_rank'] = tba_rank[f'{team}']
+
     return team_stats
 
 def calculate_climb_stats(MatchTeamData):
@@ -55,7 +69,7 @@ def calculate_climb_stats(MatchTeamData):
         'auto_climb_try': 0,
         'auto_climbed': 0,
         'endgame_climb_try': 0,
-        'endgame_climbed': 0
+        'endgame_climbed': 0,
     }
     for match in MatchTeamData:
         team_climb_stats['match_count'] += 1
@@ -206,7 +220,8 @@ def report_team_page():
                  'avg_fuel': 0,
                  'opr': 0,
                  'dpr': 0,
-                 'ccwm': 0}
+                 'ccwm': 0,
+                 'tba_rank': 0}
                 for team_data in team_summary_data}
         team_performance_data = db.session\
             .query(
