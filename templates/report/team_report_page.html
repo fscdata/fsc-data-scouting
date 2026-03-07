@@ -11,10 +11,10 @@
         <li>
             Average total fuel score:
             {{
-                (
+                ((
                     team_records|sum(attribute='auto_fuel_score')
                     + team_records|sum(attribute='teleop_fuel_score') | float
-                ) / team_records|length | round(2) if team_records else 0
+                ) / team_records|length) | round(2) if team_records else 0
             }}</li>
         <li>
             Average auto climb success:
