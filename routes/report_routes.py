@@ -53,7 +53,12 @@ def report_landing_page():
 @bp.route("/export/")
 def export_data_page():
     print(' > Rendering CSV export page')
-    event_list = db.session.query(Event.event_id, Event.event_code, Event.event_currently_active).all()
+    event_list = db.session\
+        .query(
+            Event.event_id,
+            Event.event_code,
+            Event.event_currently_active)\
+        .all()
     return render_template(
         'report/export_page.html',
         event_list=event_list)
@@ -62,6 +67,12 @@ def export_data_page():
 @bp.route("/export/generate_CSV", methods = ['POST', 'GET'])
 def deliver_csv_file():
     if request.method == 'POST':
+        if request.remote_addr:
+            print(f'Captured IP address: {request.remote_addr}')
+        else:
+            print('No IP address found in request')
+
+
         min_match_id = int(request.form.get('min_match_id', 0))
         event_id = request.form.get('event_id')
         timestamp = datetime.now().strftime('%y%m%d-%H%M')
