@@ -71,7 +71,11 @@ def deliver_csv_file():
 
         all_match_data = db.session\
             .query(MatchTeamData)\
-            .filter(MatchTeamData.event_id == event_id, MatchTeamData.match_number >= min_match_id).all()
+            .filter(
+                MatchTeamData.event_id == event_id,
+                MatchTeamData.match_number >= min_match_id,
+                MatchTeamData.record_hidden == False)\
+            .all()
 
         print(f' > Exporting {len(all_match_data)} records to CSV file {export_filename}')
         if not all_match_data:
@@ -201,11 +205,17 @@ def report_page():
 
     display_event_name = db.session.query(Event.event_name).filter(Event.event_id == display_event_id).scalar()
 
-    event_list = db.session.query(Event.event_id, Event.event_code, Event.event_currently_active).all()
+    event_list = db.session\
+        .query(Event.event_id,
+               Event.event_code,
+               Event.event_currently_active)\
+        .all()
 
     all_match_data = db.session\
         .query(MatchTeamData)\
-        .filter(MatchTeamData.event_id == display_event_id)\
+        .filter(
+            MatchTeamData.event_id == display_event_id,
+            MatchTeamData.record_hidden == False)\
         .all()
     return render_template(
         'report/report_raw_matchdata.html',
