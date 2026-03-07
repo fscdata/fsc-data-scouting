@@ -137,10 +137,10 @@ def report_team_page():
             .query(
                 MatchTeamData.team_number,
                 Team.team_name)\
-            .filter(MatchTeamData.event_id == active_event_id)\
+            .filter(MatchTeamData.event_id == active_event_id, MatchTeamData.record_hidden == False)\
             .join(Team, MatchTeamData.team_number == Team.team_id)\
             .group_by(MatchTeamData.team_number)\
-            .all()        
+            .all()
         team_stats = {
             team_data[0]:
                 {'team_name': team_data[1],
@@ -154,9 +154,10 @@ def report_team_page():
                 MatchTeamData.auto_fuel_score,
                 MatchTeamData.teleop_fuel_score
             )\
-            .filter(MatchTeamData.event_id == active_event_id)\
+            .filter(MatchTeamData.event_id == active_event_id, MatchTeamData.record_hidden == False)\
+            .join(Team, MatchTeamData.team_number == Team.team_id)\
             .all()
-        
+
         for match_record in team_performance_data:
             team_stats[match_record.team_number]['match_count'] += 1
             team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
@@ -192,7 +193,7 @@ def report_page():
         .query(Event.event_id)\
         .filter(Event.event_currently_active == 1)\
         .scalar()
-    
+
     display_event_id = request.form.get('event_id')
     if not display_event_id:
         print(' > No event ID provided, defaulting to active event')
