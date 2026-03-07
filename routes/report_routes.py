@@ -72,7 +72,6 @@ def deliver_csv_file():
         else:
             print('No IP address found in request')
 
-
         min_match_id = int(request.form.get('min_match_id', 0))
         event_id = request.form.get('event_id')
         timestamp = datetime.now().strftime('%y%m%d-%H%M')

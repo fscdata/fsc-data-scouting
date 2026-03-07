@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
+    <script src="/static/js/sorttable.js"></script>
+
     <h1>Teams Reports</h1>
 
-    <p>Select team below to go to a detail page describing performance during {{ active_event_name }}</p>
+    <p>Select team below to go to a detail page describing performance during {{ active_event_name }}.</p>
 
-    <table>
+    <p>Click on column header to sort that column (e.g. "Average Total Fuel) instead of the default sorting of Team Number.</p>
+
+    <table class="sortable">
         <tr>
             <th>Team Number</th>
             <th>Team Name</th>
