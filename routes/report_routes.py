@@ -151,7 +151,9 @@ def report_team_page():
             .query(
                 MatchTeamData.team_number,
                 Team.team_name)\
-            .filter(MatchTeamData.event_id == active_event_id, MatchTeamData.record_hidden == False)\
+            .filter(
+                MatchTeamData.event_id == active_event_id,
+                MatchTeamData.record_hidden == False)\
             .join(Team, MatchTeamData.team_number == Team.team_id)\
             .group_by(MatchTeamData.team_number)\
             .all()
@@ -191,7 +193,8 @@ def report_team_page():
             .query(MatchTeamData)\
             .filter(
                 MatchTeamData.team_number == team_number,
-                MatchTeamData.event_id == active_event_id)\
+                MatchTeamData.event_id == active_event_id,
+                MatchTeamData.record_hidden == False)\
             .all()
         print(team_records)
         team_climb_stats = calculate_climb_stats(team_records)
