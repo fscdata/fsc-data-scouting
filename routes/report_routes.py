@@ -131,6 +131,8 @@ def report_team_page():
     team_number = request.args.get('number')
     if team_number is None:
         print(f' > Rendering all teams with links')
+        print(active_event_id)
+        print(active_event_name)
         team_summary_data = db.session\
             .query(
                 MatchTeamData.team_number,
@@ -138,17 +140,35 @@ def report_team_page():
             .filter(MatchTeamData.event_id == active_event_id)\
             .join(Team, MatchTeamData.team_number == Team.team_id)\
             .group_by(MatchTeamData.team_number)\
+            .all()        
+        team_stats = {
+            team_data[0]:
+                {'team_name': team_data[1],
+                 'match_count': 0,
+                 'total_fuel': 0,
+                 'avg_fuel': 0}
+                for team_data in team_summary_data}
+        team_performance_data = db.session\
+            .query(
+                MatchTeamData.team_number,
+                MatchTeamData.auto_fuel_score,
+                MatchTeamData.teleop_fuel_score
+            )\
+            .filter(MatchTeamData.event_id == active_event_id)\
             .all()
-        print(team_summary_data)
-        # # count number of teams and print to console
-        # team_count = db.session\
-        #     .query(MatchTeamData.team_number)\
-        #     .group_by(MatchTeamData.team_number)\
-        #     .count()
-        # print(team_count)
+        
+        for match_record in team_performance_data:
+            team_stats[match_record.team_number]['match_count'] += 1
+            team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
+        for team in team_stats:
+            if team_stats[team]['match_count'] > 0:
+                team_stats[team]['avg_fuel'] = round(
+                    team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
+                    2)
+
         return render_template(
             'report/main_teams_page.html',
-            team_summary_data=team_summary_data,
+            team_stats=team_stats,
             active_event_name=active_event_name)
     else:
         print(f' > Rendering team report page for team number {team_number}')

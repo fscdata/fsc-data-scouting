@@ -9,20 +9,24 @@
             <th>Team Number</th>
             <th>Team Name</th>
             <th>Total Matches Played</th>
+            <th>Average Total Fuel</th>
         </tr>
 
-        {% for team in team_summary_data %}
+        {% for team in team_stats %}
         <tr>
             <td>
-                <a href="/report/team?number={{team.team_number}}">
-                {{ team.team_number }}
+                <a href="/report/team?number={{team}}">
+                {{ team }}
                 </a>
             </td>
             <td>
-                {{ team.team_name }}
+                {{ team_stats[team]['team_name'] }}
             </td>
             <td>
-                count of matches<!-- {{ team.count_matches }} -->
+                {{ team_stats[team]['match_count'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['avg_fuel'] }}
             </td>
         </tr>
         {% endfor %}
