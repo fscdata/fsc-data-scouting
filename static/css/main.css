@@ -1,0 +1,101 @@
+.labelText {   
+  color: blue;
+  margin-top: -50%;
+  vertical-align: middle;
+}
+.labelClear {
+  color: blue;
+  clear: left;
+}
+
+.menuLink {
+  color: darkgray;
+  text-decoration: none;
+  margin: 0.25em;
+}
+.menuDiv {
+  width: 10%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+.menuHorizontalDiv {
+  width: 100%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+
+.infoDiv {
+  width: 80%;
+  background-color: transparent;
+  text-align: left;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+.wrapperDiv {
+  width: 100%;
+  background-color: transparent;
+  text-align: center;
+  font-family: Calibri, Helvetica, sans-serif;
+  font-size: larger;
+}
+.scoutDiv {
+  width: 100%;
+  background-color: transparent;
+  text-align: center;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+.tableDiv {
+  display: table;
+  border: 1px outset gray;
+  text-align: center;
+  font-family: Calibri, Helvetica, sans-serif;
+}
+td, th {
+  border: 1px solid darkgray;
+  font-size: smaller;
+  text-align: center;
+}
+
+select {
+  font-size: large;
+  background-color: transparent;
+}
+.numbox {
+  width: 3em;
+  font-size: larger;
+  background-color: transparent;
+  /* hide the up/down arrows on number input fields */
+  -moz-appearance: textfield; /* Firefox */
+  -webkit-appearance: none; /* Chrome, Safari, Edge */
+  appearance: none; /* Standard */
+  /* right-align the text in the input field */
+  text-align: right;
+}
+.textBox {
+  width: 10em;
+  font-size: larger;
+  background-color: transparent;
+}
+.valueAdjust {
+  border: 1px solid;
+  border-radius: 5px;
+  margin: 0px;
+  font-size: large;
+}
+.send {
+  margin: 0.25em;
+  color: blue;
+  border: 1px solid;
+  background-color: transparent;
+}
+table {
+  border: 0px;
+}
+.reportTableAuto {
+  background: lightgray;
+}
+
+@media screen and (max-width: 480px) {
+  font-size: 10px; /* Smaller */
+}

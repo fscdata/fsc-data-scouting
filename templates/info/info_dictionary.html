@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>FRC Scouting Dictionary</h1>
+
+    <div class="menuHorizontalDiv">
+        <a href="/info/" class="menuLink">General Info</a>
+        <br />
+        <a href="/info/dictionary" class="menuLink">FRC Scouting Dictionary</a>
+        <br />
+        <a href="/info/how-to-scout" class="menuLink">Scouting Instructions</a>
+    </div>
+
+    <h2>I. FIRST® Philosophy</h2>
+
+        <p><strong>Gracious Professionalism® (GP):</strong> A core principle of FIRST that blends high-quality work with respect, kindness, and empathy. It means competing intensely while treating everyone with honor—avoiding disrespect, bashing, or negative cheering.</p>
+
+        <p><strong>Coopertition®:</strong> The philosophy that teams can and should assist one another even during fierce competition. It embodies "unqualified kindness" where teams help rivals with parts or labor to ensure everyone can succeed.</p>
+
+    <h2>II. Data & Analytics</h2>
+
+        <p><strong>Quantitative Data:</strong> Measurable, numbers-based data gathered from on-field performance (e.g., "Team 9999 scored 12 game pieces in Match 5").</p>
+
+        <p><strong>Qualitative Data:</strong> Interpretation-based, descriptive data relating to language and observation. This is gathered from pit-scouting, talking with teams, or match notes (e.g., "Team 9999 has a high-scoring auto but struggles with defense").</p>
+
+        <p><strong>Data Normalization:</strong> The process of adjusting data to account for outliers (like a match where a robot was disabled) to ensure the "Reports" page reflects a team's average capability rather than a one-time fluke.</p>
+
+        <p><strong>EPA (Expected Points Added):</strong> A metric (via Statbotics) that predicts a robot’s contribution to an alliance score based on a moving average of performance throughout the season.</p>
+
+        <p><strong>OPR (Offensive Power Rating):</strong> A mathematical estimate of the specific points a team contributes to their alliance per match.</p>
+
+        <p><strong>DPR (Defensive Power Rating):</strong> An estimate of points prevented by a team. Lower is better.</p>
+
+        <p><strong>CCWM (Calculated Contribution to Winning the Match):</strong> Calculated as (OPR - DPR); represents a team's overall impact on the point spread.</p>
+
+        <p><strong>Cycle Time:</strong> The time (in seconds) from the start of a task until that same task can be repeated (e.g., Intake → Score → Return).</p>
+
+    <h2>III. Tournament & Strategy</h2>
+
+        <p><strong>RP (Ranking Points):</strong> The primary unit used to determine qualification rankings. Unlike match points, RPs are awarded for winning/tying or achieving specific game objectives.</p>
+        
+        <p><strong>Current Season Max (6 RP):</strong> Win (3), Tie (1), Energized (1), Supercharged (1), Transversal (1).</p>
+
+        <p><strong>Pick List:</strong> A prioritized list of teams an alliance captain wishes to partner with. Maintaining an accurate pick list is essential for all teams, regardless of rank.</p>
+        
+        <p><strong>DNP (Do Not Pick):</strong> A designation for teams excluded from selection due to extreme unreliability, mechanical red flags, or conduct issues.</p>
+        
+        <p><strong>Pit Scouting:</strong> The process of visiting a team’s pit to gather data on their robot's physical build (drivetrain, dimensions, etc.) and asking the drive team about their intended strategy.</p>
+        
+        <p><strong>Driver Ability:</strong> A qualitative rating of the drive team’s field awareness and smoothness. A high-skill driver can often overcome defensive pressure that would stop an average team.</p>
+
+    <h2>IV. Robot Types & Hardware</h2>
+
+        <p><strong>Kit-Bot:</strong> The official, beginner-friendly robot design provided by FIRST in the Kickoff Kit.</p>
+        
+        <p><strong>Everybot:</strong> An annual, open-source robot design by Team 118 (The Robonauts). It is designed to be affordable and competitive using basic tools.</p>
+        
+        <p><strong>Swerve Drive:</strong> A drivetrain where all wheels steer independently ($360^\circ$), allowing the robot to move in any direction (holonomic) without turning its chassis.</p>
+        
+        <p><strong>Tank / West Coast Drive:</strong> A drivetrain with fixed wheels. The robot must turn its body to change direction; usually offers high traction and reliability.</p>
+        
+        <p><strong>Brownout:</strong> When a robot draws too much current, causing battery voltage to drop and the RoboRIO to temporarily reboot. Scouts should note this as a reliability issue.</p>
+        
+        <p><strong>A-Stop / E-Stop:</strong> A-Stop is a student-triggered stop during Autonomous (to prevent a crash). E-Stop is an Emergency Stop that disables the robot for the rest of the match.</p>
+
+    <h2>V. Tactical Reference (Reference Only)</h2>
+
+        <em>Note: The following strategies are advised against as they do not align with FIRST® Values. They are included in this dictionary solely for situational awareness; documenting them ensures our scouts can identify and react appropriately if these tactics are encountered on the field.</em>
+        
+        <p><strong>Scorched Earth:</strong> A draft strategy where a top-seeded alliance captain picks other top-seeded captains specifically to force a "No." Once a team declines an invitation, they are ineligible to be picked by any other alliance. This is used to "burn" through top talent to prevent lower-seeded captains from forming a strong alliance.</p>
+
+        <p><strong>Sandbagging:</strong> The act of intentionally underperforming or hiding a robot's true capabilities during qualification matches to manipulate rankings or deceive future opponents.</p>
+
+        <p><strong>Cheese-caking:</strong> The practice of an alliance captain providing a pre-fabricated mechanism or major software update to a picked team to improve their performance for the playoffs. This is often discouraged as it can diminish the work and autonomy of the team being "cheese-caked."</p>
+{% endblock %}

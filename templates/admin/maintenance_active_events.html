@@ -1,0 +1,45 @@
+{% extends "base_admin.html" %}
+{% block content %}
+    <h3>Active Events Maintenance</h3>
+
+    <div class="wrapperDiv">
+        <br />
+        This page tracks active events for the season.
+        <br />
+        To add an event, input the information, click "Add Event". <br />
+        To toggle whether an event is live, click "Set Active" or "Set Inactive". <br />
+        To remove an event, click "Remove".<br />
+        <br />
+
+        <h4>Add a New Event</h4>
+
+        <form action="/admin/addto_active_events" method="POST" onsubmit="return validate()">
+            <input type="text" name="event_year" placeholder="Event Year" size="10" required>
+            <input type="text" name="event_code" placeholder="Event Abbreviation" size="10" required>
+            <input type="text" name="event_name" placeholder="Event Name" size="30" required>
+            <input type="text" name="event_date" placeholder="Event Date (YYYY-MM-DD)" size="12" required>
+        <input class="send" type="submit" value="ADD NEW EVENT">
+        </form>
+
+        <hr />
+
+        <h4>Events in Database</h4>
+        {% for event in event_data %}
+        <span>Event <strong>{{ event.event_code }}</strong>: <em>{{ event.event_name }}</em> ({{ event.event_date }})
+        {% if event.event_currently_active %} <strong>[ACTIVE]</strong> 
+        {% else %} [inactive]
+        {% endif %}
+        </span>
+        <a href="/admin/update_events?event={{ event.event_id }}" class="send">Remove</a>
+        
+        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set 
+            {% if event.event_currently_active %}
+            Inactive
+            {% else %}
+            Active
+            {% endif %}
+        </a>
+        <br />
+        {% endfor %}
+    </div>
+{% endblock %}
