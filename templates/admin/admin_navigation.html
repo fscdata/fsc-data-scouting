@@ -1,0 +1,14 @@
+{% extends "base_admin.html" %}
+{% block content %}
+    <password_required>
+    <h1>Admin Navigation</h1>
+
+    <p>Welcome to the admin section of the site! Use the links below to navigate to different administrative functions.</p>
+
+    <ul>
+        <li><a href="/admin/maintenance_active_events">Active Events Maintenance</a></li>
+        <li><a href="/admin/maintenance_frc_teams">FRC Teams Maintenance</a></li>
+        <li><a href="/admin/query_official_data">Query Official Data from FIRST API</a></li>
+        <li><a href="/admin/do_some_math">Update Calculated Statistics</a></li>
+    </ul>
+{% endblock %}

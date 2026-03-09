@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="/admin/adjust_data" method="POST" onsubmit="return validate()">
+        <input type="hidden" name="original_match_record_id" value="{{fix_record_id}}" required>
+        <input type="hidden" name="event_id" value="{{match_data.event_id}}" required>
+        <input type="text" name="match_number" placeholder="{{match_data.match_number}}" size="15" class="textBox" required>
+        <input type="text" name="team_number" placeholder="{{match_data.team_number}}" size="15" class="textBox" required>
+        <br /><hr />
+
+        <!-- AUTO -->
+        <h3>Autonomous</h3>
+        <label for="auto_fuel_score">Fuel scored</label>
+        <input class="numbox" type="number" id="auto_fuel_score" name="auto_fuel_score" value="{{match_data.auto_fuel_score}}" min="0" required>
+        <br />
+        <br />
+        <label for="auto_climb_try">Tried to Climb?</label>
+        <input class="textBox" type="text" id="auto_climb_try" name="auto_climb_try" value="{{match_data.auto_climb_try}}">
+        <br />
+        <br />
+        <label for="auto_traveled">Auto Traveled?</label>
+        <input class="textBox" type="text" id="auto_traveled" name="auto_traveled" value="{{match_data.auto_traveled}}">
+        </select>
+        <br />
+
+        <h3>Teleop</h3>
+        <label for="teleop_fuel_score">Fuel scored</label>
+        <input class="numbox" type="number" id="teleop_fuel_score" name="teleop_fuel_score" value="{{match_data.teleop_fuel_score}}" min="0" required>
+        <br />
+        <br />
+
+        <label for="teleop_traveled">Teleop Traveled?</label>
+        <input class="textBox" type="text" id="teleop_traveled" name="teleop_traveled" value="{{match_data.teleop_traveled}}">
+        <br />
+
+        <h3>Endgame</h3>
+        <label for="endgame_climb_try">Tried to Climb?</label>
+        <input class="textBox" type="text" id="endgame_climb_try" name="endgame_climb_try" value="{{match_data.endgame_climb_try}}">
+        <br />
+
+        <h3>Strategies</h3>
+
+        <h4>Active Periods</h4>
+        <input type="checkbox" id="active_scored" name="active_scored" value="{{strategy_active_scored}}">
+        <label for="active_scored">Scored Fuel?</label>
+        <br />
+        <input type="checkbox" id="active_ferrying" name="active_ferrying" value="{{strategy_active_ferrying}}">
+        <label for="active_ferrying">Ferried Fuel?</label>
+        <br />
+        <input type="checkbox" id="active_defense" name="active_defense" value="{{strategy_active_defense}}">
+        <label for="active_defense">Played defense?</label>
+        <br />
+
+        <h4>Inactive Periods</h4>
+        <input type="checkbox" id="inactive_scored" name="inactive_scored" value="{{strategy_inactive_scored}}">
+        <label for="inactive_scored">Scored Fuel?</label>
+        <br />
+        <input type="checkbox" id="inactive_ferrying" name="inactive_ferrying" value="{{strategy_inactive_ferrying}}">
+        <label for="inactive_ferrying">Ferried Fuel?</label>
+        <br />
+        <input type="checkbox" id="inactive_defense" name="inactive_defense" value="{{strategy_inactive_defense}}">
+        <label for="inactive_defense">Played defense?</label>
+        <br />
+        <br />
+        <label for="strat_defense">Defensive Actions</label>
+        <input class="numbox" type="number" id="strat_defense" name="strat_defense" value="{{match_data.strategy_defense_actions}}" min="0" required>
+
+        <h4>Robot Issues</h4>
+
+        <input type="checkbox" id="tipped" name="tipped" value="{{match_tipped}}">
+        <label for="tipped">Tipped?</label>
+        <br />
+        <input type="checkbox" id="broken" name="broken" value="{{match_broken}}">
+        <label for="broken">Broken?</label>
+        <br />
+        <input type="checkbox" id="beached" name="beached" value="{{match_beached}}">
+        <label for="beached">Got stuck on Fuel?</label>
+        <br />
+        <input type="checkbox" id="carded" name="carded" value="{{match_carded}}">
+        <label for="carded">Red or Yellow Card?</label>
+        <br />
+        <input type="checkbox" id="disabled" name="disabled" value="{{match_disabled}}">
+        <label for="disabled">Disabled? (A-Stop or E-Stop)</label>
+        <br />
+        <input type="checkbox" id="absent" name="absent" value="{{match_absent}}">
+        <label for="absent">Absent from Field?</label>
+        <br />
+
+        <hr />
+
+        all good? <input class="send" type="submit" value="SUBMIT"> your data!
+    </form>
+{% endblock %}

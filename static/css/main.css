@@ -54,8 +54,12 @@
 td, th {
   border: 1px solid darkgray;
   font-size: smaller;
-  /* center text in table cells */
   text-align: center;
+}
+
+select {
+  font-size: large;
+  background-color: transparent;
 }
 .numbox {
   width: 3em;

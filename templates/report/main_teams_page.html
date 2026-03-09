@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+    <script src="/static/js/sorttable.js"></script>
+
+    <h1>Teams Reports</h1>
+
+    <p>Select team below to go to a detail page describing performance during {{ active_event_name }}.</p>
+
+    <p>Click on column header to sort that column (e.g. "Average Total Fuel") instead of the default sorting of Team Number.</p>
+
+    <table class="sortable">
+        <tr>
+            <th>Team Number</th>
+            <th>Team Name</th>
+            <th>Matches Scouted</th>
+            <th>Avg Total Fuel</th>
+            <th>TBA Ranking</th>
+            <th>TBA OPR</th>
+            <th>TBA DPR</th>
+            <th>TBA CCWM</th>
+        </tr>
+
+        {% for team in team_stats %}
+        <tr>
+            <td>
+                <a href="/report/team?number={{team}}">
+                {{ team }}
+                </a>
+            </td>
+            <td>
+                {{ team_stats[team]['team_name'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['match_count'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['avg_fuel'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['tba_rank'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['opr'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['dpr'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['ccwm'] }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

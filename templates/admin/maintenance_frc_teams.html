@@ -1,13 +1,8 @@
-<!doctype html>
-<html>
-    <head>
-        <title>ADMIN MAINTENANCE: Update FRC Teams Table</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src={{ url_for('static', filename='js/main.js') }}></script>
-        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
-    </head>
-<body>
-    <div class="wrapperDiv">
+{% extends "base_admin.html" %}
+{% block content %}
+    <h3>FRC Teams Maintenance</h3>
+
+    <div class="infoDiv">
         <br />
         This page can add or remove records from the FRC Teams table.
         <br />
@@ -15,13 +10,6 @@
         To remove a team, input the team number and click "Remove Team". <br />
         <br />
 
-        <h3>Teams in Database</h3>
-        {% for team in team_data %}
-        <span>Team Number <strong>{{ team[0] }}</strong>: Team Name {{ team[1] }}</span>
-        <a href="/admin/update_frc_teams?team={{ team[0] }}" class="btn send">Remove</a>
-        <br />
-        {% endfor %}
-        <hr />
         <h4>Add a New Team</h4>
 
         <form action="/admin/addto_frc_teams" method="POST" onsubmit="return validate()">
@@ -29,6 +17,15 @@
             <input type="text" name="team_name" placeholder="Team Name" size="30" required>
         <input class="send" type="submit" value="ADD NEW TEAM">
         </form>
+
+        <hr />
+
+        <h3>Teams in Database</h3>
+        {% for team in team_data %}
+        <span>Team Number <strong>{{ team[0] }}</strong>: Team Name {{ team[1] }}</span>
+        <a href="/admin/update_frc_teams?team={{ team[0] }}" class="btn send">Remove</a>
+        <br />
+        {% endfor %}
+
     </div>
-</body>
-</html>
+{% endblock %}

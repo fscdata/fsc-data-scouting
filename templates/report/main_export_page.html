@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Admin - Data Export (FRC REBUILT 2026)</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='css/main.css') }} />
+    </head>
+<body>
+    <div class="wrapperDiv">
+        <h2>Export scouting data</h2>
+
+        <!-- Keep the same form structure and POST action your app expects -->
+        <form action="/report/export/generate_CSV" method="POST">
+            <label for="min_match">Minimum match number to export (inclusive):</label>
+            <input type="number" id="min_match" name="min_match_id" value="0" min="0" />
+            <label for="event_id">Event code:</label>
+            <!-- Dropdown menu generated from available event names -->
+            <select id="event_id" name="event_id">
+                {% for event in event_list %}
+                <option value="{{ event.event_id }}"
+                    {% if event.event_currently_active %} selected{% endif%}
+                >{{ event.event_code }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="submit" value="Export CSV" />
+        </form>
+
+        <hr />
+
+        <!-- Short explanatory text updated to 2026 terminology only -->
+        <p>
+            This export produces a CSV using the current 2026 (REBUILT) schema:
+            match_number, team_number, notes, start_position, auto fields,
+            teleop fields (fuel / hub counts), endgame, and bonus RPs:
+            Energized, Supercharged, Traversal.
+        </p>
+
+        <!-- If your previous admin page had extra links or instructions, preserve them below -->
+        <p>
+            Tip: Set minimum match to 0 to export all matches, or set a match number to export from that match onward.
+        </p>
+    </div>
+</body>
+</html>
