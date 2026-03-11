@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="scoutDiv">
+        <h1>Select your Scouting Assignment</h1>
+        <form action="/scout/robot_data" method="POST">
+
+        <p>Match Number</p>
+        <input type="text" name="match_number" placeholder="Match Number" size="15" class="textBox" required>
+
+        <br />
+        <div class="scoutFloatLeftDiv">
+            <button name="alliance_bot" class="bigRedButton" type="submit" value="red_1">Red 1 Robot</button>
+            <br />
+            <button name="alliance_bot" class="bigRedButton" type="submit" value="red_2">Red 2 Robot</button>
+            <br />
+            <button name="alliance_bot" class="bigRedButton" type="submit" value="red_3">Red 3 Robot</button>
+            <br />
+            <br />
+            <button name="alliance_human" class="bigRedButton" type="submit" value="red_human" formaction="/scout/human_data">Red Human</button>
+        </div>
+        <div class="scoutFloatRightDiv">
+            <button name="alliance_bot" class="bigBlueButton" type="submit" value="blue_1">Blue 1 Robot</button>
+            <br />
+            <button name="alliance_bot" class="bigBlueButton" type="submit" value="blue_2">Blue 2 Robot</button>
+            <br />
+            <button name="alliance_bot" class="bigBlueButton" type="submit" value="blue_3">Blue 3 Robot</button>
+            <br />
+            <br />
+            <button name="alliance_human" class="bigBlueButton" type="submit" value="blue_human" formaction="/scout/human_data">Blue Human</button>
+        </div>
+    </div>
+{% endblock %}
+
+
+<input type="submit" name="action" value="Update" />
+<input type="submit" name="action" value="Delete" />

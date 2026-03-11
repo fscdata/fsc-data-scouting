@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="scoutDiv">
+    <form action="/scout/add_human_data" method="POST" onsubmit="return validate()">
+
+        <p>Match Number</p>
+        <input type="text" name="match_number"
+            value="{{match_number}}" size="10" class="textBox" required />
+
+        <p>Alliance</p>
+        <input type="text" name="alliance"
+            value="{{alliance}}" size="10" class="textBox" required />
+
+        <hr />
+
+        <h2>Human Player(s) Fuel Scored</h2>
+        <label for="human_fuel_score">Fuel scored</label>
+        <br />
+        <button class="valueAdjust" onclick="minusOne('human_fuel_score');">-1</button>
+        <input class="numbox" type="number" id="human_fuel_score" name="human_fuel_score" value="0" min="0" required>
+        <button class="valueAdjust" onclick="plusOne('human_fuel_score');">+1</button>
+        <button class="valueAdjust" onclick="plusFive('human_fuel_score');">+5</button>
+        <button class="valueAdjust" onclick="plusTen('human_fuel_score');">+10</button>
+        <br />
+        <br />
+        <hr />
+        <p>
+            all good? <input class="send" type="submit" value="SUBMIT"> your data!
+        </p>
+    </form>
+</div>
+{% endblock %}

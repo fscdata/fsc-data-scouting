@@ -80,6 +80,8 @@ class MatchData(db.Model):
     blue_1_endgame_climb = Column(Integer)
     blue_2_endgame_climb = Column(Integer)
     blue_3_endgame_climb = Column(Integer)
+    red_human_score = Column(Integer)
+    blue_human_score = Column(Integer)
 
 class Calculation(db.Model):
     __tablename__ = 'calculated_data'

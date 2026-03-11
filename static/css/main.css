@@ -27,7 +27,7 @@
 }
 
 .infoDiv {
-  width: 80%;
+  /* width: 80%; */
   background-color: transparent;
   text-align: left;
   font-family: Calibri, Helvetica, sans-serif;
@@ -38,6 +38,14 @@
   text-align: center;
   font-family: Calibri, Helvetica, sans-serif;
   font-size: larger;
+}
+.scoutFloatLeftDiv {
+  width: 50%;
+  float: left;
+}
+.scoutFloatRightDiv {
+  width: 50%;
+  float: right;
 }
 .scoutDiv {
   width: 100%;
@@ -60,6 +68,18 @@ td, th {
 select {
   font-size: large;
   background-color: transparent;
+}
+.bigRedButton {
+  background-color: red;
+  font-size: x-large;
+  color: white;
+  margin-top: 1em;
+}
+.bigBlueButton {
+  background-color: blue;
+  font-size: x-large;
+  color: white;
+  margin-top: 1em;
 }
 .numbox {
   width: 3em;

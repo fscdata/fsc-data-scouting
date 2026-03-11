@@ -3,8 +3,13 @@
 <div class="scoutDiv">
     <form action="/scout/add_data" method="POST" onsubmit="return validate()">
         <!-- limit text box input to only integers -->
-        <input type="text" name="match_number" placeholder="Match Number" size="15" class="textBox" required>
-        <input type="text" name="team_number" placeholder="Team Number" size="15" class="textBox" required>
+        Match Number
+        <input type="text" name="match_number"
+            value="{{match_number}}" size="10" class="textBox" required>
+        <br /><br />
+        Team Number
+        <input type="text" name="team_number"
+            value="{{team_number}}" size="15" class="textBox" required>
         <br /><hr />
 
         <!-- AUTO -->
@@ -23,14 +28,14 @@
             <option value="0">did not attempt</option>
             <option value="1">attempted</option>
         </select>
-        <br />
+        <!-- <br />
         <br />
         <label for="auto_traveled">Auto Traveled?</label>
         <select name="auto_traveled" id="auto_traveled">
             <option value="0">no motion</option>
             <option value="1">within alliance zone</option>
             <option value="2">to neutral zone</option>
-        </select>
+        </select> -->
         <br /><hr />
 
         <!-- TELEOP -->
@@ -55,14 +60,14 @@
         <br />
         <br />
         -->
-        <label for="teleop_traveled">Teleop Traveled?</label>
+        <!-- <label for="teleop_traveled">Teleop Traveled?</label>
         <select name="teleop_traveled" id="teleop_traveled">
             <option value="0">no motion</option>
             <option value="1">within alliance zone</option>
             <option value="2">to neutral zone</option>
             <option value="3">to opponent zone</option>
         </select>
-        <br />
+        <br /> -->
         <hr />
 
         <!-- ENDGAME -->
@@ -78,28 +83,31 @@
         <hr />
         <h3>Strategies</h3>
 
-        <h4>Active Periods</h4>
-        <input type="checkbox" id="active_scored" name="active_scored" value="1">
-        <label for="active_scored">Scored Fuel?</label>
-        <br />
-        <input type="checkbox" id="active_ferrying" name="active_ferrying" value="1">
-        <label for="active_ferrying">Ferried Fuel?</label>
-        <br />
-        <input type="checkbox" id="active_defense" name="active_defense" value="1">
-        <label for="active_defense">Played defense?</label>
-        <br />
+        <div class="scoutFloatLeftDiv">
+            <h4>Active Periods</h4>
+            <input type="checkbox" id="active_scored" name="active_scored" value="1">
+            <label for="active_scored">Scored Fuel?</label>
+            <br />
+            <input type="checkbox" id="active_ferrying" name="active_ferrying" value="1">
+            <label for="active_ferrying">Ferried Fuel?</label>
+            <br />
+            <input type="checkbox" id="active_defense" name="active_defense" value="1">
+            <label for="active_defense">Played defense?</label>
+        </div>
 
-        <h4>Inactive Periods</h4>
-        <input type="checkbox" id="inactive_scored" name="inactive_scored" value="1">
-        <label for="inactive_scored">Scored Fuel?</label>
-        <br />
-        <input type="checkbox" id="inactive_ferrying" name="inactive_ferrying" value="1">
-        <label for="inactive_ferrying">Ferried Fuel?</label>
-        <br />
-        <input type="checkbox" id="inactive_defense" name="inactive_defense" value="1">
-        <label for="inactive_defense">Played defense?</label>
-        <br />
-        <br />
+        <div class="scoutFloatRightDiv">
+            <h4>Inactive Periods</h4>
+            <input type="checkbox" id="inactive_scored" name="inactive_scored" value="1">
+            <label for="inactive_scored">Scored Fuel?</label>
+            <br />
+            <input type="checkbox" id="inactive_ferrying" name="inactive_ferrying" value="1">
+            <label for="inactive_ferrying">Ferried Fuel?</label>
+            <br />
+            <input type="checkbox" id="inactive_defense" name="inactive_defense" value="1">
+            <label for="inactive_defense">Played defense?</label>
+        </div>
+
+
         <label for="strat_defense">Defensive Actions</label>
         <br />
         <button class="valueAdjust" onclick="minusOne('strat_defense');">-1</button>
