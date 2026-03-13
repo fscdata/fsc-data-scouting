@@ -14,6 +14,7 @@
             <th>Team Name</th>
             <th>Matches Scouted</th>
             <th>Avg Total Fuel</th>
+            <th>Est Avg Human Fuel</th>
             <th>TBA Ranking</th>
             <th>TBA OPR</th>
             <th>TBA DPR</th>
@@ -35,6 +36,9 @@
             </td>
             <td>
                 {{ team_stats[team]['avg_fuel'] }}
+            </td>
+            <td>
+                {{ team_stats[team]['human_fuel'] }}
             </td>
             <td>
                 {{ team_stats[team]['tba_rank'] }}

@@ -8,7 +8,7 @@ from database_model import db, Team, MatchTeamData, MatchData, Event, Calculatio
 
 bp = Blueprint("report", __name__, url_prefix="/report")
 
-def pull_TBA_stats(team_stats, event_key='2026schop'):
+def pull_TBA_stats(team_stats, event_key:str):
     tba_api_key = os.environ.get('TBA_API_KEY')
 
     base_tba_url = 'https://www.thebluealliance.com/api/v3'
@@ -86,7 +86,6 @@ def calculate_human_stats(MatchData, MatchTeamData):
     for match in MatchTeamData:
         pass
 
-
 def calculate_climb_stats(MatchTeamData):
     print(f'> Calculating climb stats for team')
     # do some math to calculate average climb level and success rate for the team
@@ -144,7 +143,6 @@ def export_data_page():
         'report/export_page.html',
         event_list=event_list)
 
-
 @bp.route("/export/generate_CSV", methods = ['POST', 'GET'])
 def deliver_csv_file():
     if request.method == 'POST':
@@ -175,7 +173,7 @@ def deliver_csv_file():
             return render_template('error.html', error_message=error_message)
         else:
             # drop metadata columns that aren't needed for export
-            columns_to_exclude = ['event_id', 'record_ip_address', 'record_hidden']
+            columns_to_exclude = ['event_id', 'calc_auto_score', 'calc_teleop_score', 'record_ip_address', 'record_hidden']
             columns = [col for col in all_match_data[0].__table__.columns if col.name not in columns_to_exclude]
             # print(f' > Column names: {[col.name for col in columns]}')
 
@@ -246,6 +244,8 @@ def report_team_page():
                  'match_count': 0,
                  'total_fuel': 0,
                  'avg_fuel': 0,
+                 'human_fuel': 0,
+                 'avg_human': 0,
                  'opr': 0,
                  'dpr': 0,
                  'ccwm': 0,
@@ -255,7 +255,8 @@ def report_team_page():
             .query(
                 MatchTeamData.team_number,
                 MatchTeamData.auto_fuel_score,
-                MatchTeamData.teleop_fuel_score
+                MatchTeamData.teleop_fuel_score,
+                MatchTeamData.alliance_human_fuel
             )\
             .filter(MatchTeamData.event_id == active_event_id, MatchTeamData.record_hidden == False)\
             .join(Team, MatchTeamData.team_number == Team.team_id)\
@@ -264,10 +265,14 @@ def report_team_page():
         for match_record in team_performance_data:
             team_stats[match_record.team_number]['match_count'] += 1
             team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
+            team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
         for team in team_stats:
             if team_stats[team]['match_count'] > 0:
                 team_stats[team]['avg_fuel'] = round(
                     team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
+                    2)
+                team_stats[team]['avg_human'] = round(
+                    (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
                     2)
         tba_event_code = f'{active_event_year}{active_event_code.lower()}'
         full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
