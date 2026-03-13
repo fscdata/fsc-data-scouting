@@ -265,7 +265,8 @@ def report_team_page():
         for match_record in team_performance_data:
             team_stats[match_record.team_number]['match_count'] += 1
             team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
-            team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
+            if match_record.alliance_human_fuel is not None:
+                team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
         for team in team_stats:
             if team_stats[team]['match_count'] > 0:
                 team_stats[team]['avg_fuel'] = round(
