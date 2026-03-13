@@ -161,7 +161,7 @@ def add_scout_data_robot():
         form_dict = request.form.to_dict(flat=False)
 
         # capture and validate fields from form
-        required_fields = ['match_number', 'team_number', 'auto_fuel_score', 'auto_climb_try', 'auto_traveled', 'teleop_fuel_score', 'teleop_traveled', 'endgame_climb_try']
+        required_fields = ['match_number', 'team_number', 'auto_fuel_score', 'auto_climb_try', 'teleop_fuel_score', 'endgame_climb_try']
         for field in required_fields:
             if field not in form_dict:
                 error_message = f'Missing required field: {field}'
