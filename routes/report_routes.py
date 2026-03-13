@@ -15,7 +15,7 @@ def pull_TBA_stats(team_stats, event_key='2026schop'):
 
     if not tba_api_key:
         print("Error: Blue Alliance API credentials not found in environment variables.")
-        exit(1)
+        return None
     headers = {
         'X-TBA-Auth-Key' : tba_api_key
     }
@@ -218,18 +218,18 @@ def report_team_page():
     event_data = db.session\
         .query(Event.event_id,
                Event.event_name,
-               Event.event_code)\
+               Event.event_code,
+               Event.event_year)\
         .filter(Event.event_currently_active == 1)\
         .first()
     active_event_id = event_data.event_id
     active_event_name = event_data.event_name
     active_event_code = event_data.event_code
+    active_event_year = event_data.event_year
 
     team_number = request.args.get('number')
     if team_number is None:
         print(f' > Rendering all teams with links')
-        print(active_event_id)
-        print(active_event_name)
         team_summary_data = db.session\
             .query(
                 MatchTeamData.team_number,
@@ -269,7 +269,8 @@ def report_team_page():
                 team_stats[team]['avg_fuel'] = round(
                     team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
                     2)
-        full_team_stats = pull_TBA_stats(team_stats, active_event_code.lower())
+        tba_event_code = f'{active_event_year}{active_event_code.lower()}'
+        full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
 
         return render_template(
             'report/main_teams_page.html',
