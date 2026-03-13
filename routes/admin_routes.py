@@ -292,7 +292,15 @@ def enhance_match_team_data():
             MatchTeamData.auto_climbed == None,
             MatchTeamData.event_id == event_id)\
         .all()
-    # print(team_match_needs_enhancing)
+    team_match_needs_human = db.session\
+        .query(
+            MatchTeamData.match_number,
+            MatchTeamData.team_number)\
+        .filter(
+            MatchTeamData.alliance_human_fuel == None,
+            MatchTeamData.event_id == event_id)\
+        .all()
+    print(team_match_needs_human)
     for match_number, team_number in team_match_needs_enhancing:
         # print(match_number, team_number)
         auto_climb_dict, endgame_climb_dict = request_api_match_data(event_id, match_number)
@@ -312,9 +320,65 @@ def enhance_match_team_data():
                         MatchTeamData.auto_climbed: climb_result,
                         MatchTeamData.endgame_climb_level: endgame_climb_result
                     })
+    for match_number, team_number in team_match_needs_human:
+        # TODO: must be a better way
+        human_data = db.session.query(MatchData.red_human_score)\
+            .filter(
+                MatchData.event_id == event_id,
+                MatchData.match_number == match_number,
+                MatchData.red_1_id == team_number
+            ).scalar()
+        if human_data is None:
+            human_data = db.session.query(MatchData.red_human_score)\
+                .filter(
+                    MatchData.event_id == event_id,
+                    MatchData.match_number == match_number,
+                    MatchData.red_2_id == team_number
+                ).scalar()
+        if human_data is None:
+            human_data = db.session.query(MatchData.red_human_score)\
+                .filter(
+                    MatchData.event_id == event_id,
+                    MatchData.match_number == match_number,
+                    MatchData.red_3_id == team_number
+                ).scalar()
+        if human_data is None:
+            human_data = db.session.query(MatchData.blue_human_score)\
+                .filter(
+                    MatchData.event_id == event_id,
+                    MatchData.match_number == match_number,
+                    MatchData.blue_1_id == team_number
+                ).scalar()
+        if human_data is None:
+            human_data = db.session.query(MatchData.blue_human_score)\
+                .filter(
+                    MatchData.event_id == event_id,
+                    MatchData.match_number == match_number,
+                    MatchData.blue_2_id == team_number
+                ).scalar()
+        if human_data is None:
+            human_data = db.session.query(MatchData.blue_human_score)\
+                .filter(
+                    MatchData.event_id == event_id,
+                    MatchData.match_number == match_number,
+                    MatchData.blue_3_id == team_number
+                ).scalar()
+
+        if human_data is not None:
+            print(f'Updating MatchTeamData for match {match_number} and team {team_number} with human player score {human_data}')
+            db.session\
+                .query(MatchTeamData)\
+                .filter(
+                    MatchTeamData.event_id == event_id,
+                    MatchTeamData.match_number == match_number,
+                    MatchTeamData.team_number == team_number)\
+                .update(
+                    {MatchTeamData.alliance_human_fuel: human_data}
+                )
     db.session.commit()
 
 ''' app routes '''
+
 
 @bp.route("/")
 @basic_auth.required
@@ -562,8 +626,11 @@ def trigger_query_match_data():
     print(' > Triggering job to query official match result data from FIRST API')
 
     next_match_number = find_next_match_to_query()
-    api_call_match_data(
-        match_number = next_match_number,
-        match_level = 'Qualification')
+    try:
+        api_call_match_data(
+            match_number = next_match_number,
+            match_level = 'Qualification')
+    except:
+        pass
     enhance_match_team_data()
     return redirect('/admin/query_official_data')

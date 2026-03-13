@@ -8,7 +8,7 @@ from database_model import db, Team, MatchTeamData, MatchData, Event, Calculatio
 
 bp = Blueprint("report", __name__, url_prefix="/report")
 
-def pull_TBA_stats(team_stats):
+def pull_TBA_stats(team_stats, event_key='2026schop'):
     tba_api_key = os.environ.get('TBA_API_KEY')
 
     base_tba_url = 'https://www.thebluealliance.com/api/v3'
@@ -20,46 +20,72 @@ def pull_TBA_stats(team_stats):
         'X-TBA-Auth-Key' : tba_api_key
     }
 
-    event_key = '2026schop'
     stats_endpoint_url = f'{base_tba_url}/event/{event_key}/oprs'
     rankings_endpoint_url = f'{base_tba_url}/event/{event_key}/rankings'
 
-    event_stats_response = requests.get(stats_endpoint_url, headers=headers)
-    print(f'Status Code: {event_stats_response.status_code}')
-    if not event_stats_response.status_code == 200:
-        print('api error')
-    else:
-        event_stats_data = event_stats_response.json()
+    try:
+        event_stats_response = requests.get(stats_endpoint_url, headers=headers)
+        if not event_stats_response.status_code == 200:
+            print(f'Status Code: {event_stats_response.status_code}')
+            print(' !!! api error')
+            for team in team_stats:
+                team_stats[team]['opr'] = 'TBA N/A'
+                team_stats[team]['dpr'] = 'TBA N/A'
+                team_stats[team]['ccwm'] = 'TBA N/A'
+        else:
+            event_stats_data = event_stats_response.json()
 
-        tba_opr = {
-            team[3:]: round(event_stats_data['oprs'][team], 2)
-            for team in event_stats_data['oprs']}
-        tba_dpr = {
-            team[3:]: round(event_stats_data['dprs'][team], 2)
-            for team in event_stats_data['dprs']}
-        tba_ccwm = {
-            team[3:]: round(event_stats_data['ccwms'][team], 2)
-            for team in event_stats_data['ccwms']}
+            tba_opr = {
+                team[3:]: round(event_stats_data['oprs'][team], 2)
+                for team in event_stats_data['oprs']}
+            tba_dpr = {
+                team[3:]: round(event_stats_data['dprs'][team], 2)
+                for team in event_stats_data['dprs']}
+            tba_ccwm = {
+                team[3:]: round(event_stats_data['ccwms'][team], 2)
+                for team in event_stats_data['ccwms']}
 
-        # print(team_stats)
+            for team in team_stats:
+                team_stats[team]['opr'] = tba_opr[f'{team}']
+                team_stats[team]['dpr'] = tba_dpr[f'{team}']
+                team_stats[team]['ccwm'] = tba_ccwm[f'{team}']
+    except:
+        print(' !!! api error')
         for team in team_stats:
-            team_stats[team]['opr'] = tba_opr[f'{team}']
-            team_stats[team]['dpr'] = tba_dpr[f'{team}']
-            team_stats[team]['ccwm'] = tba_ccwm[f'{team}']
+            team_stats[team]['opr'] = 'TBA N/A'
+            team_stats[team]['dpr'] = 'TBA N/A'
+            team_stats[team]['ccwm'] = 'TBA N/A'
 
-    rankings_response = requests.get(rankings_endpoint_url, headers=headers)
-    print(f'Status Code: {rankings_response.status_code}')
-    if not rankings_response.status_code == 200:
-        print('api error')
-    else:
-        rankings_data = rankings_response.json()
-        tba_rank = {
-            team['team_key'][3:]: team['rank']
-            for team in rankings_data['rankings']}
+    try:
+        rankings_response = requests.get(rankings_endpoint_url, headers=headers)
+        print(f'Status Code: {rankings_response.status_code}')
+        if not rankings_response.status_code == 200:
+            print('api error')
+            for team in team_stats:
+                team_stats[team]['tba_rank'] = 'TBA N/A'
+        else:
+            rankings_data = rankings_response.json()
+            tba_rank = {
+                team['team_key'][3:]: team['rank']
+                for team in rankings_data['rankings']}
+            for team in team_stats:
+                team_stats[team]['tba_rank'] = tba_rank[f'{team}']
+    except:
+        print(' !!! api error')
         for team in team_stats:
-            team_stats[team]['tba_rank'] = tba_rank[f'{team}']
+            team_stats[team]['tba_rank'] = 'TBA N/A'
 
     return team_stats
+
+def calculate_human_stats(MatchData, MatchTeamData):
+    print('> Calculating human player stats for team')
+    team_human_stats = {
+        'match_count': 0,
+        'total human': 0,
+    }
+    for match in MatchTeamData:
+        pass
+
 
 def calculate_climb_stats(MatchTeamData):
     print(f'> Calculating climb stats for team')
@@ -189,14 +215,16 @@ def report_match_page():
 
 @bp.route("/team")
 def report_team_page():
-    active_event_id = db.session\
-        .query(Event.event_id)\
+    event_data = db.session\
+        .query(Event.event_id,
+               Event.event_name,
+               Event.event_code)\
         .filter(Event.event_currently_active == 1)\
-        .scalar()
-    active_event_name = db.session\
-        .query(Event.event_name)\
-        .filter(Event.event_currently_active == 1)\
-        .scalar()
+        .first()
+    active_event_id = event_data.event_id
+    active_event_name = event_data.event_name
+    active_event_code = event_data.event_code
+
     team_number = request.args.get('number')
     if team_number is None:
         print(f' > Rendering all teams with links')
@@ -241,7 +269,7 @@ def report_team_page():
                 team_stats[team]['avg_fuel'] = round(
                     team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
                     2)
-        full_team_stats = pull_TBA_stats(team_stats)
+        full_team_stats = pull_TBA_stats(team_stats, active_event_code.lower())
 
         return render_template(
             'report/main_teams_page.html',

@@ -45,6 +45,7 @@ class MatchTeamData(db.Model):
     match_carded = Column(Boolean)
     match_disabled = Column(Boolean)
     match_absent = Column(Boolean)
+    alliance_human_fuel = Column(Integer)
     calc_auto_score = Column(Integer)
     calc_teleop_score = Column(Integer)
     record_ip_address = Column(String(20))
