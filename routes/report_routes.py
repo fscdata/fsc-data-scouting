@@ -20,7 +20,7 @@ def pull_TBA_stats(team_stats):
         'X-TBA-Auth-Key' : tba_api_key
     }
 
-    event_key = '2026sccha'
+    event_key = '2026schop'
     stats_endpoint_url = f'{base_tba_url}/event/{event_key}/oprs'
     rankings_endpoint_url = f'{base_tba_url}/event/{event_key}/rankings'
 
