@@ -201,15 +201,16 @@ def report_event_page():
         match_data=event_match_data,
         aggregate_data=aggregate_data)
 
-@bp.route("/match")
-def report_match_page():
-    print(' > Rendering match report page')
-    match_data = db.session\
-        .query(MatchTeamData)\
-        .filter(MatchTeamData.match_id == 5).all()
-    return render_template(
-        'report/match_report_page.html',
-        match_data=match_data)
+#TODO: what was this for?
+# @bp.route("/match")
+# def report_match_page():
+#     print(' > Rendering match report page')
+#     match_data = db.session\
+#         .query(MatchTeamData)\
+#         .filter(MatchTeamData.match_id == 5).all()
+#     return render_template(
+#         'report/match_report_page.html',
+#         match_data=match_data)
 
 @bp.route("/team")
 def report_team_page():
