@@ -1,8 +1,10 @@
+import base64
 import os
+from matplotlib.figure import Figure
 import requests
 import csv
 from datetime import datetime
-from io import StringIO
+from io import BytesIO, StringIO
 from flask import Blueprint, make_response, render_template, request
 from database_model import db, Team, MatchTeamData, MatchData, Event, Calculation
 
@@ -294,10 +296,36 @@ def report_team_page():
             .all()
         print(team_records)
         team_climb_stats = calculate_climb_stats(team_records)
+        
+        fuel_scored = []
+        matches_played = []
+        count = 0
+        
+        for record in team_records:
+            count += 1
+            fuel_scored.append(record.auto_fuel_score+record.teleop_fuel_score)
+            matches_played.append(count)
+        
+        # Generate figure without using pyplot
+        fig = Figure()
+        ax = fig.subplots()
+        ax.bar(matches_played, fuel_scored)
+        ax.set_xlabel("Matches Played")
+        ax.set_ylabel("Fuel Scored")
+
+        # Save to memory buffer
+        buf = BytesIO()
+        fig.savefig(buf, format="png")
+
+        # Encode to Base64 string
+        plot_url = base64.b64encode(buf.getbuffer()).decode("ascii")
+        
         return render_template(
             'report/team_report_page.html',
+            team_number=team_number,
             team_records=team_records,
-            team_climb_stats=team_climb_stats)
+            team_climb_stats=team_climb_stats,
+            plot_url=plot_url)
 
 @bp.route("/raw/", methods = ['POST', 'GET'])
 def report_page():
