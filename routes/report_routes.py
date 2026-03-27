@@ -294,9 +294,65 @@ def report_team_page():
                 MatchTeamData.event_id == active_event_id,
                 MatchTeamData.record_hidden == False)\
             .all()
-        print(team_records)
+        # print(team_records)
         team_climb_stats = calculate_climb_stats(team_records)
-        
+
+        team_summary_data = db.session\
+            .query(
+                MatchTeamData.team_number,
+                Team.team_name)\
+            .filter(
+                MatchTeamData.event_id == active_event_id,
+                MatchTeamData.record_hidden == False,
+                MatchTeamData.team_number == team_number)\
+            .join(Team, MatchTeamData.team_number == Team.team_id)\
+            .group_by(MatchTeamData.team_number)\
+            .all()
+        team_stats = {
+            team_data[0]:
+                {'team_name': team_data[1],
+                 'match_count': 0,
+                 'total_fuel': 0,
+                 'avg_fuel': 0,
+                 'human_fuel': 0,
+                 'avg_human': 0,
+                 'opr': 0,
+                 'dpr': 0,
+                 'ccwm': 0,
+                 'tba_rank': 0}
+                for team_data in team_summary_data}
+        print(team_stats)
+        team_performance_data = db.session\
+            .query(
+                MatchTeamData.team_number,
+                MatchTeamData.auto_fuel_score,
+                MatchTeamData.teleop_fuel_score,
+                MatchTeamData.alliance_human_fuel
+            )\
+            .filter(
+                MatchTeamData.event_id == active_event_id,
+                MatchTeamData.record_hidden == False,
+                MatchTeamData.team_number == team_number)\
+            .join(Team, MatchTeamData.team_number == Team.team_id)\
+            .all()
+
+        for match_record in team_performance_data:
+            team_stats[match_record.team_number]['match_count'] += 1
+            team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
+            if match_record.alliance_human_fuel is not None:
+                team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
+        for team in team_stats:
+            if team_stats[team]['match_count'] > 0:
+                team_stats[team]['avg_fuel'] = round(
+                    team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
+                    2)
+                team_stats[team]['avg_human'] = round(
+                    (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
+                    2)
+        tba_event_code = f'{active_event_year}{active_event_code.lower()}'
+        full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
+        print(full_team_stats)
+
         fuel_scored = []
         matches_played = []
         count = 0
@@ -324,6 +380,7 @@ def report_team_page():
             'report/team_report_page.html',
             team_number=team_number,
             team_records=team_records,
+            team_avg_stats=full_team_stats,
             team_climb_stats=team_climb_stats,
             plot_url=plot_url)
 

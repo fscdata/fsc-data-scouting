@@ -24,6 +24,18 @@
                 <li>
                     Average endgame climb success:
                     {{ team_climb_stats['endgame_climb_success'] }}</li>
+                <li>
+                    TheBlueAlliance OPR:
+                    {{ team_avg_stats[team_number|int]['opr'] }}
+                </li>
+                <li>
+                    TheBlueAlliance DPR:
+                    {{ team_avg_stats[team_number|int]['dpr'] }}
+                </li>
+                <li>
+                    TheBlueAlliance CCWM:
+                    {{ team_avg_stats[team_number|int]['ccwm'] }}
+                </li>
             </ul>
         </div>
 
