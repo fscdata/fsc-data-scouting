@@ -7,3 +7,4 @@ requests~=2.31.0
 Flask-Migrate~=4.0
 Flask-BasicAuth~=0.2.0
 python-dotenv>=0.8
+matplotlib~=3.7.5

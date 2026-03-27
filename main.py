@@ -41,7 +41,7 @@ app = Flask(__name__)
 
 app.config['BASIC_AUTH_USERNAME'] = 'admin'
 app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('ADMIN_PASSWORD', 'default_password')
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///C:/Users/crwhi/Desktop/fsc-data-scouting/instance/richland_backup_scouting.db'
+app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
 
 # initialize extensions with the app
 db.init_app(app)
