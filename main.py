@@ -41,7 +41,7 @@ app = Flask(__name__)
 
 app.config['BASIC_AUTH_USERNAME'] = 'admin'
 app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('ADMIN_PASSWORD', 'default_password')
-app.config["SQLALCHEMY_DATABASE_URI"] = get_db_uri()
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///C:/Users/Christopher/Desktop/fsc-data-scouting/instance/richland_backup_scouting.db'
 
 # initialize extensions with the app
 db.init_app(app)
@@ -54,12 +54,14 @@ from routes.scout_routes import bp as scout_bp
 from routes.report_routes import bp as report_bp
 from routes.admin_routes import bp as admin_bp
 from routes.info_routes import bp as info_bp
+from routes.pick_routes import bp as pick_bp
 
 app.register_blueprint(main_bp)
 app.register_blueprint(scout_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(info_bp)
+app.register_blueprint(pick_bp)
 ##
 
 ## Main execution of app
