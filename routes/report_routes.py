@@ -287,102 +287,135 @@ def report_team_page():
             active_event_name=active_event_name)
     else:
         print(f' > Rendering team report page for team number {team_number}')
-        team_records = db.session\
-            .query(MatchTeamData)\
-            .filter(
-                MatchTeamData.team_number == team_number,
-                MatchTeamData.event_id == active_event_id,
+        events_for_team = db.session\
+            .query(MatchTeamData.event_id)\
+            .distinct()\
+            .filter(MatchTeamData.team_number == team_number,
                 MatchTeamData.record_hidden == False)\
             .all()
-        # print(team_records)
-        team_climb_stats = calculate_climb_stats(team_records)
+        print(events_for_team)
+        if len(events_for_team) == 0:
+            return render_template(
+                'report/error_teams_page.html',
+                team_number=team_number)
+        # TODO: need to build a page for whoops that team isn't here
+        else:
+            team_event_list = [event_id[0] for event_id in events_for_team]
+            print(team_event_list)
+            all_team_events = {}
+            for event_id in team_event_list:
+                print(event_id)
+                event_name = db.session\
+                    .query(Event.event_name)\
+                    .filter(Event.event_id == event_id)\
+                    .scalar()
+ 
+                event_records = db.session\
+                    .query(MatchTeamData)\
+                    .filter(
+                        MatchTeamData.team_number == team_number,
+                        MatchTeamData.event_id == event_id,
+                        MatchTeamData.record_hidden == False)\
+                    .all()
+                print(event_records)
+                team_climb_stats = calculate_climb_stats(event_records)
 
-        team_summary_data = db.session\
-            .query(
-                MatchTeamData.team_number,
-                Team.team_name)\
-            .filter(
-                MatchTeamData.event_id == active_event_id,
-                MatchTeamData.record_hidden == False,
-                MatchTeamData.team_number == team_number)\
-            .join(Team, MatchTeamData.team_number == Team.team_id)\
-            .group_by(MatchTeamData.team_number)\
-            .all()
-        team_stats = {
-            team_data[0]:
-                {'team_name': team_data[1],
-                 'match_count': 0,
-                 'total_fuel': 0,
-                 'avg_fuel': 0,
-                 'human_fuel': 0,
-                 'avg_human': 0,
-                 'opr': 0,
-                 'dpr': 0,
-                 'ccwm': 0,
-                 'tba_rank': 0}
-                for team_data in team_summary_data}
-        print(team_stats)
-        team_performance_data = db.session\
-            .query(
-                MatchTeamData.team_number,
-                MatchTeamData.auto_fuel_score,
-                MatchTeamData.teleop_fuel_score,
-                MatchTeamData.alliance_human_fuel
-            )\
-            .filter(
-                MatchTeamData.event_id == active_event_id,
-                MatchTeamData.record_hidden == False,
-                MatchTeamData.team_number == team_number)\
-            .join(Team, MatchTeamData.team_number == Team.team_id)\
-            .all()
+                team_summary_data = db.session\
+                    .query(
+                        MatchTeamData.team_number,
+                        Team.team_name)\
+                    .filter(
+                        MatchTeamData.event_id == event_id,
+                        MatchTeamData.record_hidden == False,
+                        MatchTeamData.team_number == team_number)\
+                    .join(Team, MatchTeamData.team_number == Team.team_id)\
+                    .group_by(MatchTeamData.team_number)\
+                    .all()
+                print(team_summary_data)
+                team_stats = {
+                    team_data[0]:
+                        {'team_name': team_data[1],
+                        'match_count': 0,
+                        'total_fuel': 0,
+                        'avg_fuel': 0,
+                        'human_fuel': 0,
+                        'avg_human': 0,
+                        'opr': 0,
+                        'dpr': 0,
+                        'ccwm': 0,
+                        'tba_rank': 0}
+                        for team_data in team_summary_data}
+                print(team_stats)
+                team_performance_data = db.session\
+                    .query(
+                        MatchTeamData.team_number,
+                        MatchTeamData.auto_fuel_score,
+                        MatchTeamData.teleop_fuel_score,
+                        MatchTeamData.alliance_human_fuel
+                    )\
+                    .filter(
+                        MatchTeamData.event_id == event_id,
+                        MatchTeamData.record_hidden == False,
+                        MatchTeamData.team_number == team_number)\
+                    .join(Team, MatchTeamData.team_number == Team.team_id)\
+                    .all()
+                print(team_performance_data)
 
-        for match_record in team_performance_data:
-            team_stats[match_record.team_number]['match_count'] += 1
-            team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
-            if match_record.alliance_human_fuel is not None:
-                team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
-        for team in team_stats:
-            if team_stats[team]['match_count'] > 0:
-                team_stats[team]['avg_fuel'] = round(
-                    team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
-                    2)
-                team_stats[team]['avg_human'] = round(
-                    (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
-                    2)
-        tba_event_code = f'{active_event_year}{active_event_code.lower()}'
-        full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
-        print(full_team_stats)
+                for match_record in team_performance_data:
+                    team_stats[match_record.team_number]['match_count'] += 1
+                    team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
+                    if match_record.alliance_human_fuel is not None:
+                        team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
+                for team in team_stats:
+                    if team_stats[team]['match_count'] > 0:
+                        team_stats[team]['avg_fuel'] = round(
+                            team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
+                            2)
+                        team_stats[team]['avg_human'] = round(
+                            (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
+                            2)
+                tba_event_code = f'{active_event_year}{active_event_code.lower()}'
+                full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
+                # print(full_team_stats)
 
-        fuel_scored = []
-        matches_played = []
-        count = 0
-        
-        for record in team_records:
-            count += 1
-            fuel_scored.append(record.auto_fuel_score+record.teleop_fuel_score)
-            matches_played.append(count)
-        
-        # Generate figure without using pyplot
-        fig = Figure()
-        ax = fig.subplots()
-        ax.bar(matches_played, fuel_scored)
-        ax.set_xlabel("Matches Played")
-        ax.set_ylabel("Fuel Scored")
+                fuel_scored = []
+                matches_played = []
+                count = 0
+                
+                for record in event_records:
+                    count += 1
+                    fuel_scored.append(record.auto_fuel_score+record.teleop_fuel_score)
+                    matches_played.append(count)
+                
+                # Generate figure without using pyplot
+                fig = Figure()
+                ax = fig.subplots()
+                ax.bar(matches_played, fuel_scored)
+                ax.set_xlabel("Matches Played")
+                ax.set_ylabel("Fuel Scored")
 
-        # Save to memory buffer
-        buf = BytesIO()
-        fig.savefig(buf, format="png")
+                # Save to memory buffer
+                buf = BytesIO()
+                fig.savefig(buf, format="png")
 
-        # Encode to Base64 string
-        plot_url = base64.b64encode(buf.getbuffer()).decode("ascii")
-        
-        return render_template(
-            'report/team_report_page.html',
-            team_number=team_number,
-            team_records=team_records,
-            team_avg_stats=full_team_stats,
-            team_climb_stats=team_climb_stats,
-            plot_url=plot_url)
+                # Encode to Base64 string
+                plot_url = base64.b64encode(buf.getbuffer()).decode("ascii")
+            
+                print(event_records)
+                print(event_name)
+                all_team_events[event_name] = {}
+                all_team_events[event_name]['stats'] = full_team_stats
+                all_team_events[event_name]['event_records'] = event_records
+                all_team_events[event_name]['score_plot'] = plot_url
+
+            return render_template(
+                'report/team_report_page.html',
+                team_number=team_number,
+                # team_records=event_records,
+                all_team_events=all_team_events)
+                # team_avg_stats=full_team_stats,
+                # team_climb_stats=team_climb_stats,
+                # plot_url=plot_url)
 
 @bp.route("/raw/", methods = ['POST', 'GET'])
 def report_page():
