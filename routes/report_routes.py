@@ -292,6 +292,7 @@ def report_team_page():
             .distinct()\
             .filter(MatchTeamData.team_number == team_number,
                 MatchTeamData.record_hidden == False)\
+            .order_by(MatchTeamData.event_id.desc())\
             .all()
         print(events_for_team)
         if len(events_for_team) == 0:
