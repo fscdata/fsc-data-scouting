@@ -6,7 +6,7 @@ import csv
 from datetime import datetime
 from io import BytesIO, StringIO
 from flask import Blueprint, make_response, render_template, request
-from database_model import db, Team, MatchTeamData, MatchData, Event, Calculation
+from database_model import db, Team, MatchTeamData, Event
 
 bp = Blueprint("report", __name__, url_prefix="/report")
 
@@ -17,7 +17,7 @@ def pull_TBA_stats(team_stats, event_key:str):
 
     if not tba_api_key:
         print("Error: Blue Alliance API credentials not found in environment variables.")
-        return None
+        return team_stats
     headers = {
         'X-TBA-Auth-Key' : tba_api_key
     }
@@ -48,9 +48,9 @@ def pull_TBA_stats(team_stats, event_key:str):
                 for team in event_stats_data['ccwms']}
 
             for team in team_stats:
-                team_stats[team]['opr'] = tba_opr[f'{team}']
-                team_stats[team]['dpr'] = tba_dpr[f'{team}']
-                team_stats[team]['ccwm'] = tba_ccwm[f'{team}']
+                team_stats[team]['opr'] = tba_opr.get(f'{team}', 'TBA N/A')
+                team_stats[team]['dpr'] = tba_dpr.get(f'{team}', 'TBA N/A')
+                team_stats[team]['ccwm'] = tba_ccwm.get(f'{team}', 'TBA N/A')
     except:
         print(' !!! api error')
         for team in team_stats:
@@ -71,7 +71,7 @@ def pull_TBA_stats(team_stats, event_key:str):
                 team['team_key'][3:]: team['rank']
                 for team in rankings_data['rankings']}
             for team in team_stats:
-                team_stats[team]['tba_rank'] = tba_rank[f'{team}']
+                team_stats[team]['tba_rank'] = tba_rank.get(f'{team}', 'TBA N/A')
     except:
         print(' !!! api error')
         for team in team_stats:
@@ -126,6 +126,66 @@ def calculate_climb_stats(MatchTeamData):
     else:
         team_climb_stats['endgame_climb_success'] = 'Not applicable'
     return team_climb_stats
+
+def build_event_team_stats(event_id, include_all_teams=False):
+    if include_all_teams:
+        team_summary_data = db.session\
+            .query(Team.team_id, Team.team_name)\
+            .order_by(Team.team_id)\
+            .all()
+    else:
+        team_summary_data = db.session\
+            .query(
+                MatchTeamData.team_number,
+                Team.team_name)\
+            .filter(
+                MatchTeamData.event_id == event_id,
+                MatchTeamData.record_hidden == False)\
+            .join(Team, MatchTeamData.team_number == Team.team_id)\
+            .group_by(MatchTeamData.team_number)\
+            .all()
+
+    team_stats = {
+        team_data[0]:
+            {'team_name': team_data[1],
+             'match_count': 0,
+             'total_fuel': 0,
+             'avg_fuel': 0,
+             'human_fuel': 0,
+             'avg_human': 0,
+             'opr': 0,
+             'dpr': 0,
+             'ccwm': 0,
+             'tba_rank': 0}
+            for team_data in team_summary_data}
+
+    team_performance_data = db.session\
+        .query(
+            MatchTeamData.team_number,
+            MatchTeamData.auto_fuel_score,
+            MatchTeamData.teleop_fuel_score,
+            MatchTeamData.alliance_human_fuel
+        )\
+        .filter(MatchTeamData.event_id == event_id, MatchTeamData.record_hidden == False)\
+        .join(Team, MatchTeamData.team_number == Team.team_id)\
+        .all()
+
+    for match_record in team_performance_data:
+        if match_record.team_number not in team_stats:
+            continue
+        team_stats[match_record.team_number]['match_count'] += 1
+        team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
+        if match_record.alliance_human_fuel is not None:
+            team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
+    for team in team_stats:
+        if team_stats[team]['match_count'] > 0:
+            team_stats[team]['avg_fuel'] = round(
+                team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
+                2)
+            team_stats[team]['avg_human'] = round(
+                (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
+                2)
+    return team_stats
 
 @bp.route("/")
 def report_landing_page():
@@ -187,21 +247,26 @@ def deliver_csv_file():
             output.headers["Content-type"] = "text/csv"
             return output
 
-@bp.route("/event")
-def report_event_page():
-    print(' > Rendering calculated data')
-    event_match_data = db.session\
-        .query(MatchTeamData)\
-        .join(MatchData, MatchTeamData.match_id == MatchData.match_id)\
-        .filter(MatchData.event_id == 1).all()
-    aggregate_data = db.session.query(Calculation)\
-        .filter(Calculation.calculation_name == 'event_climb')\
+@bp.route("/event/<int:event_id>")
+def report_event_page(event_id):
+    print(f' > Rendering team stats for event {event_id}')
+    event_data = db.session\
+        .query(Event)\
+        .filter(Event.event_id == event_id)\
         .first()
-    print(f' > Aggregate data for event 1: {aggregate_data.calculation_value}')
+    if event_data is None:
+        return render_template(
+            'error.html',
+            error_message=f'No event found with ID {event_id}.')
+
+    team_stats = build_event_team_stats(event_id, include_all_teams=False)
+    tba_event_code = f'{event_data.event_year}{event_data.event_code.lower()}'
+    team_stats = pull_TBA_stats(team_stats, tba_event_code)
+
     return render_template(
-        'report/main_report_page.html',
-        match_data=event_match_data,
-        aggregate_data=aggregate_data)
+        'report/event_teams_page.html',
+        event=event_data,
+        team_stats=team_stats)
 
 #TODO: what was this for?
 # @bp.route("/match")
@@ -223,68 +288,40 @@ def report_team_page():
                Event.event_year)\
         .filter(Event.event_currently_active == 1)\
         .first()
-    active_event_id = event_data.event_id
-    active_event_name = event_data.event_name
-    active_event_code = event_data.event_code
-    active_event_year = event_data.event_year
+    if event_data:
+        active_event_id = event_data.event_id
+        active_event_name = event_data.event_name
+        active_event_code = event_data.event_code
+        active_event_year = event_data.event_year
+    else:
+        active_event_id = active_event_name = active_event_code = active_event_year = None
 
     team_number = request.args.get('number')
     if team_number is None:
         print(f' > Rendering all teams with links')
-        team_summary_data = db.session\
-            .query(
-                MatchTeamData.team_number,
-                Team.team_name)\
-            .filter(
-                MatchTeamData.event_id == active_event_id,
-                MatchTeamData.record_hidden == False)\
-            .join(Team, MatchTeamData.team_number == Team.team_id)\
-            .group_by(MatchTeamData.team_number)\
-            .all()
-        team_stats = {
-            team_data[0]:
-                {'team_name': team_data[1],
-                 'match_count': 0,
-                 'total_fuel': 0,
-                 'avg_fuel': 0,
-                 'human_fuel': 0,
-                 'avg_human': 0,
-                 'opr': 0,
-                 'dpr': 0,
-                 'ccwm': 0,
-                 'tba_rank': 0}
-                for team_data in team_summary_data}
-        team_performance_data = db.session\
-            .query(
-                MatchTeamData.team_number,
-                MatchTeamData.auto_fuel_score,
-                MatchTeamData.teleop_fuel_score,
-                MatchTeamData.alliance_human_fuel
-            )\
-            .filter(MatchTeamData.event_id == active_event_id, MatchTeamData.record_hidden == False)\
-            .join(Team, MatchTeamData.team_number == Team.team_id)\
-            .all()
+        team_stats = build_event_team_stats(active_event_id, include_all_teams=True)
+        if active_event_id:
+            tba_event_code = f'{active_event_year}{active_event_code.lower()}'
+            team_stats = pull_TBA_stats(team_stats, tba_event_code)
 
-        for match_record in team_performance_data:
-            team_stats[match_record.team_number]['match_count'] += 1
-            team_stats[match_record.team_number]['total_fuel'] += (match_record.auto_fuel_score + match_record.teleop_fuel_score)
-            if match_record.alliance_human_fuel is not None:
-                team_stats[match_record.team_number]['human_fuel'] += match_record.alliance_human_fuel
-        for team in team_stats:
-            if team_stats[team]['match_count'] > 0:
-                team_stats[team]['avg_fuel'] = round(
-                    team_stats[team]['total_fuel'] / team_stats[team]['match_count'],
-                    2)
-                team_stats[team]['avg_human'] = round(
-                    (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
-                    2)
-        tba_event_code = f'{active_event_year}{active_event_code.lower()}'
-        full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
+        all_events = db.session\
+            .query(
+                Event.event_id,
+                Event.event_name,
+                Event.event_code,
+                Event.event_year,
+                Event.event_currently_active)\
+            .order_by(Event.event_year.desc(), Event.event_id.desc())\
+            .all()
+        events_by_year = {}
+        for event in all_events:
+            events_by_year.setdefault(event.event_year, []).append(event)
 
         return render_template(
             'report/main_teams_page.html',
-            team_stats=full_team_stats,
-            active_event_name=active_event_name)
+            team_stats=team_stats,
+            active_event_name=active_event_name,
+            events_by_year=events_by_year)
     else:
         print(f' > Rendering team report page for team number {team_number}')
         events_for_team = db.session\
@@ -297,20 +334,20 @@ def report_team_page():
         print(events_for_team)
         if len(events_for_team) == 0:
             return render_template(
-                'report/error_teams_page.html',
-                team_number=team_number)
-        # TODO: need to build a page for whoops that team isn't here
+                'error.html',
+                error_message=f'No scouting data found for team {team_number} in any event.')
         else:
             team_event_list = [event_id[0] for event_id in events_for_team]
             print(team_event_list)
             all_team_events = {}
             for event_id in team_event_list:
                 print(event_id)
-                event_name = db.session\
-                    .query(Event.event_name)\
+                event_info = db.session\
+                    .query(Event.event_name, Event.event_year, Event.event_code, Event.event_date)\
                     .filter(Event.event_id == event_id)\
-                    .scalar()
- 
+                    .first()
+                event_name = event_info.event_name
+
                 event_records = db.session\
                     .query(MatchTeamData)\
                     .filter(
@@ -375,7 +412,7 @@ def report_team_page():
                         team_stats[team]['avg_human'] = round(
                             (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
                             2)
-                tba_event_code = f'{active_event_year}{active_event_code.lower()}'
+                tba_event_code = f'{event_info.event_year}{event_info.event_code.lower()}'
                 full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
                 # print(full_team_stats)
 
@@ -408,6 +445,7 @@ def report_team_page():
                 all_team_events[event_name]['stats'] = full_team_stats
                 all_team_events[event_name]['event_records'] = event_records
                 all_team_events[event_name]['score_plot'] = plot_url
+                all_team_events[event_name]['event_date'] = event_info.event_date
 
             return render_template(
                 'report/team_report_page.html',
@@ -426,7 +464,7 @@ def report_page():
         .filter(Event.event_currently_active == 1)\
         .scalar()
 
-    display_event_id = request.form.get('event_id')
+    display_event_id = request.values.get('event_id')
     if not display_event_id:
         print(' > No event ID provided, defaulting to active event')
         display_event_id = active_event_id

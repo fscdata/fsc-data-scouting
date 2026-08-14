@@ -4,6 +4,7 @@
 
     {% for event_name in all_team_events %}
     <h2>{{ event_name }}</h2>
+    <p><strong>{{ all_team_events[event_name]['event_date'] }}</strong></p>
     <div style="display: flex; align-items: flex-start; gap: 20px;">
         <div style="flex: 0.5;">
             <h4>Average Information</h4>

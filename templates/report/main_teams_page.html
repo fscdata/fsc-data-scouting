@@ -2,23 +2,14 @@
 {% block content %}
     <script src="/static/js/sorttable.js"></script>
 
-    <h1>Teams Reports</h1>
+    <h1>Team Reports</h1>
 
-    <p>Select team below to go to a detail page describing performance during {{ active_event_name }}.</p>
-
-    <p>Click on column header to sort that column (e.g. "Average Total Fuel") instead of the default sorting of Team Number.</p>
+    <p>Every team in our database is listed below. Click team number to see report of all years/events with available data.</p>
 
     <table class="sortable">
         <tr>
             <th>Team Number</th>
             <th>Team Name</th>
-            <th>Matches Scouted</th>
-            <th>Avg Total Fuel</th>
-            <th>Est Avg Human Fuel</th>
-            <th>TBA Ranking</th>
-            <th>TBA OPR</th>
-            <th>TBA DPR</th>
-            <th>TBA CCWM</th>
         </tr>
 
         {% for team in team_stats %}
@@ -31,29 +22,25 @@
             <td>
                 {{ team_stats[team]['team_name'] }}
             </td>
-            <td>
-                {{ team_stats[team]['match_count'] }}
-            </td>
-            <td>
-                {{ team_stats[team]['avg_fuel'] }}
-            </td>
-            <td>
-                {{ team_stats[team]['avg_human'] }}
-            </td>
-            <td>
-                {{ team_stats[team]['tba_rank'] }}
-            </td>
-            <td>
-                {{ team_stats[team]['opr'] }}
-            </td>
-            <td>
-                {{ team_stats[team]['dpr'] }}
-            </td>
-            <td>
-                {{ team_stats[team]['ccwm'] }}
-            </td>
         </tr>
         {% endfor %}
     </table>
+
+    <h2>Events</h2>
+
+    <p>Find detail statistics for teams at a specific event.</p>
+
+    {% for year, year_events in events_by_year.items() %}
+    <h3>{{ year }} Season</h3>
+    <ul>
+        {% for event in year_events %}
+        <li>
+            {% if event.event_currently_active %}<strong>[ACTIVE]</strong>{% endif %}
+            <a href="/report/event/{{ event.event_id }}">{{ event.event_name }}</a>
+            (<a href="/report/raw/?event_id={{ event.event_id }}">raw data</a>)
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
 
 {% endblock %}
