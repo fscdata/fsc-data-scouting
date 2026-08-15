@@ -22,6 +22,7 @@
                 <th>TBA OPR</th>
                 <th>TBA DPR</th>
                 <th>TBA CCWM</th>
+                {# <th>Statbotics EPA</th> #}
             </tr>
 
             {% for team in pickedteams %}
@@ -55,6 +56,9 @@
                 <td>
                     {{ team_stats[team]['ccwm'] }}
                 </td>
+                {# <td>
+                    {{ team_stats[team]['epa'] }}
+                </td> #}
                 <td>
                     <button class="remove-btn" data-team="{{ team }}">Remove</button>
                 </td>
@@ -76,6 +80,7 @@
             <th>TBA OPR</th>
             <th>TBA DPR</th>
             <th>TBA CCWM</th>
+            {# <th>Statbotics EPA</th> #}
         </tr>
 
         {% for team in team_stats %}
@@ -109,6 +114,9 @@
             <td>
                 {{ team_stats[team]['ccwm'] }}
             </td>
+            {# <td>
+                {{ team_stats[team]['epa'] }}
+            </td> #}
             <td>
                 <button class="add-btn" data-team="{{ team }}">Add</button>
             </td>
