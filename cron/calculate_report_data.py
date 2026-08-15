@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask
 import requests
 
@@ -176,7 +176,7 @@ def do_some_math():
             print(f'> Fetching archived stats for event {event_key}')
             tba_stats = fetch_tba_event_stats(event_key)
             statbotics_epa = fetch_statbotics_epa(event_key)
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
 
             for team_number in event_team_list:
                 team_num = team_number[0]
