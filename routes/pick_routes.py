@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from database_model import db, Team, MatchTeamData, MatchData, Event, Calculation
-from routes.report_routes import pull_TBA_stats
+from routes.report_routes import pull_archived_stats
 
 bp = Blueprint("pick", __name__, url_prefix="/pick-list")
 
@@ -10,16 +10,12 @@ def pick_landing_page():
 
     event_data = db.session\
         .query(Event.event_id,
-               Event.event_name,
-               Event.event_code,
-               Event.event_year)\
+               Event.event_name)\
         .filter(Event.event_currently_active == 1)\
         .first()
     active_event_id = event_data.event_id
     active_event_name = event_data.event_name
-    active_event_code = event_data.event_code
-    active_event_year = event_data.event_year
-    
+
     team_summary_data = db.session\
         .query(
             MatchTeamData.team_number,
@@ -41,7 +37,8 @@ def pick_landing_page():
                 'opr': 0,
                 'dpr': 0,
                 'ccwm': 0,
-                'tba_rank': 0}
+                'tba_rank': 0,
+                'epa': 0}
             for team_data in team_summary_data}
     team_performance_data = db.session\
         .query(
@@ -67,8 +64,7 @@ def pick_landing_page():
             team_stats[team]['avg_human'] = round(
                 (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
                 2)
-    tba_event_code = f'{active_event_year}{active_event_code.lower()}'
-    full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
+    full_team_stats = pull_archived_stats(team_stats, active_event_id)
     
     return render_template('pick_list/main_pick_page.html', 
                             team_stats=full_team_stats,

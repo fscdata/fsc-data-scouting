@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime, ForeignKey, UniqueConstraint
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -86,12 +86,17 @@ class MatchData(db.Model):
 
 class Calculation(db.Model):
     __tablename__ = 'calculated_data'
+    __table_args__ = (
+        UniqueConstraint('team_number', 'event_id', name='uq_calculated_data_team_event'),
+    )
     record_id = Column(Integer, primary_key=True)
     team_number = Column(Integer, ForeignKey('frc_teams.team_id'))
     event_id = Column(Integer)
     event_climb = Column(Integer)
     event_avg_score = Column(Integer)
-    event_epa = Column(Integer)
-    event_opr = Column(Integer)
-    event_dpr = Column(Integer)
-    event_ccwm = Column(Integer)
+    event_epa = Column(Float)
+    event_opr = Column(Float)
+    event_dpr = Column(Float)
+    event_ccwm = Column(Float)
+    tba_rank = Column(Integer)
+    last_updated = Column(DateTime)

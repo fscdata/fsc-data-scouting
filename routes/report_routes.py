@@ -1,81 +1,34 @@
 import base64
-import os
 from matplotlib.figure import Figure
-import requests
 import csv
 from datetime import datetime
 from io import BytesIO, StringIO
 from flask import Blueprint, make_response, render_template, request
-from database_model import db, Team, MatchTeamData, Event
+from database_model import db, Team, MatchTeamData, Event, Calculation
 
 bp = Blueprint("report", __name__, url_prefix="/report")
 
-def pull_TBA_stats(team_stats, event_key:str):
-    tba_api_key = os.environ.get('TBA_API_KEY')
+def pull_archived_stats(team_stats, event_id):
+    """Merge archived OPR/DPR/CCWM/rank/EPA from the Calculation table into team_stats.
 
-    base_tba_url = 'https://www.thebluealliance.com/api/v3'
+    Reads whatever cron/calculate_report_data.py last saved instead of calling
+    TBA/Statbotics live, so report pages don't hit those APIs on every view.
+    """
+    archived_rows = db.session\
+        .query(Calculation)\
+        .filter(
+            Calculation.event_id == event_id,
+            Calculation.team_number.in_(team_stats.keys()))\
+        .all()
+    archived_by_team = {row.team_number: row for row in archived_rows}
 
-    if not tba_api_key:
-        print("Error: Blue Alliance API credentials not found in environment variables.")
-        return team_stats
-    headers = {
-        'X-TBA-Auth-Key' : tba_api_key
-    }
-
-    stats_endpoint_url = f'{base_tba_url}/event/{event_key}/oprs'
-    rankings_endpoint_url = f'{base_tba_url}/event/{event_key}/rankings'
-
-    try:
-        event_stats_response = requests.get(stats_endpoint_url, headers=headers)
-        if not event_stats_response.status_code == 200:
-            print(f'Status Code: {event_stats_response.status_code}')
-            print(' !!! api error')
-            for team in team_stats:
-                team_stats[team]['opr'] = 'TBA N/A'
-                team_stats[team]['dpr'] = 'TBA N/A'
-                team_stats[team]['ccwm'] = 'TBA N/A'
-        else:
-            event_stats_data = event_stats_response.json()
-
-            tba_opr = {
-                team[3:]: round(event_stats_data['oprs'][team], 2)
-                for team in event_stats_data['oprs']}
-            tba_dpr = {
-                team[3:]: round(event_stats_data['dprs'][team], 2)
-                for team in event_stats_data['dprs']}
-            tba_ccwm = {
-                team[3:]: round(event_stats_data['ccwms'][team], 2)
-                for team in event_stats_data['ccwms']}
-
-            for team in team_stats:
-                team_stats[team]['opr'] = tba_opr.get(f'{team}', 'TBA N/A')
-                team_stats[team]['dpr'] = tba_dpr.get(f'{team}', 'TBA N/A')
-                team_stats[team]['ccwm'] = tba_ccwm.get(f'{team}', 'TBA N/A')
-    except:
-        print(' !!! api error')
-        for team in team_stats:
-            team_stats[team]['opr'] = 'TBA N/A'
-            team_stats[team]['dpr'] = 'TBA N/A'
-            team_stats[team]['ccwm'] = 'TBA N/A'
-
-    try:
-        rankings_response = requests.get(rankings_endpoint_url, headers=headers)
-        print(f'Status Code: {rankings_response.status_code}')
-        if not rankings_response.status_code == 200:
-            print('api error')
-            for team in team_stats:
-                team_stats[team]['tba_rank'] = 'TBA N/A'
-        else:
-            rankings_data = rankings_response.json()
-            tba_rank = {
-                team['team_key'][3:]: team['rank']
-                for team in rankings_data['rankings']}
-            for team in team_stats:
-                team_stats[team]['tba_rank'] = tba_rank.get(f'{team}', 'TBA N/A')
-    except:
-        print(' !!! api error')
-        for team in team_stats:
-            team_stats[team]['tba_rank'] = 'TBA N/A'
+    for team in team_stats:
+        row = archived_by_team.get(team)
+        team_stats[team]['opr'] = row.event_opr if row and row.event_opr is not None else 'N/A'
+        team_stats[team]['dpr'] = row.event_dpr if row and row.event_dpr is not None else 'N/A'
+        team_stats[team]['ccwm'] = row.event_ccwm if row and row.event_ccwm is not None else 'N/A'
+        team_stats[team]['tba_rank'] = row.tba_rank if row and row.tba_rank is not None else 'N/A'
+        team_stats[team]['epa'] = row.event_epa if row and row.event_epa is not None else 'N/A'
 
     return team_stats
 
@@ -156,7 +109,8 @@ def build_event_team_stats(event_id, include_all_teams=False):
              'opr': 0,
              'dpr': 0,
              'ccwm': 0,
-             'tba_rank': 0}
+             'tba_rank': 0,
+             'epa': 0}
             for team_data in team_summary_data}
 
     team_performance_data = db.session\
@@ -260,8 +214,7 @@ def report_event_page(event_id):
             error_message=f'No event found with ID {event_id}.')
 
     team_stats = build_event_team_stats(event_id, include_all_teams=False)
-    tba_event_code = f'{event_data.event_year}{event_data.event_code.lower()}'
-    team_stats = pull_TBA_stats(team_stats, tba_event_code)
+    team_stats = pull_archived_stats(team_stats, event_id)
 
     return render_template(
         'report/event_teams_page.html',
@@ -283,26 +236,21 @@ def report_event_page(event_id):
 def report_team_page():
     event_data = db.session\
         .query(Event.event_id,
-               Event.event_name,
-               Event.event_code,
-               Event.event_year)\
+               Event.event_name)\
         .filter(Event.event_currently_active == 1)\
         .first()
     if event_data:
         active_event_id = event_data.event_id
         active_event_name = event_data.event_name
-        active_event_code = event_data.event_code
-        active_event_year = event_data.event_year
     else:
-        active_event_id = active_event_name = active_event_code = active_event_year = None
+        active_event_id = active_event_name = None
 
     team_number = request.args.get('number')
     if team_number is None:
         print(f' > Rendering all teams with links')
         team_stats = build_event_team_stats(active_event_id, include_all_teams=True)
         if active_event_id:
-            tba_event_code = f'{active_event_year}{active_event_code.lower()}'
-            team_stats = pull_TBA_stats(team_stats, tba_event_code)
+            team_stats = pull_archived_stats(team_stats, active_event_id)
 
         all_events = db.session\
             .query(
@@ -381,7 +329,8 @@ def report_team_page():
                         'opr': 0,
                         'dpr': 0,
                         'ccwm': 0,
-                        'tba_rank': 0}
+                        'tba_rank': 0,
+                        'epa': 0}
                         for team_data in team_summary_data}
                 print(team_stats)
                 team_performance_data = db.session\
@@ -412,8 +361,7 @@ def report_team_page():
                         team_stats[team]['avg_human'] = round(
                             (team_stats[team]['human_fuel'] / team_stats[team]['match_count']) / 3,
                             2)
-                tba_event_code = f'{event_info.event_year}{event_info.event_code.lower()}'
-                full_team_stats = pull_TBA_stats(team_stats, tba_event_code)
+                full_team_stats = pull_archived_stats(team_stats, event_id)
                 # print(full_team_stats)
 
                 fuel_scored = []
