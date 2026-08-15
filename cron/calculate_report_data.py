@@ -12,7 +12,8 @@ from database_model import db, Event, MatchData, MatchTeamData, Calculation
 
 # Create a minimal Flask app for database access
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('SQLALCHEMY_DB_URI', 'sqlite:///scouting.db')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    'SQLALCHEMY_DB_URI', f"sqlite:///{os.path.join(ROOT_DIR, 'instance', 'scouting.db')}")
 db.init_app(app)
 
 def fetch_tba_event_stats(event_key: str):

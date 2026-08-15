@@ -12,7 +12,8 @@ from database_model import db, Event, MatchData
 
 # Create a minimal Flask app for database access
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('SQLALCHEMY_DB_URI', 'sqlite:///scouting.db')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    'SQLALCHEMY_DB_URI', f"sqlite:///{os.path.join(ROOT_DIR, 'instance', 'scouting.db')}")
 db.init_app(app)
 
 first_api_base_url = 'https://frc-api.firstinspires.org/v3.0'
