@@ -577,7 +577,9 @@ trigger backend / external data updates
 def trigger_calculate_report_data():
     print(' > Triggering job to calculate report data')
     # kick off external script to calculate report data
-    os.system('python cron/calculate_report_data.py')
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    script_path = os.path.join(root_dir, 'cron', 'calculate_report_data.py')
+    os.system(f'python "{script_path}"')
     return redirect('/admin/')
 
 @bp.route("/query_official_data")
