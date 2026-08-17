@@ -2,6 +2,10 @@
 
 ## Short Term Projects
 
+### Add "Active Event" link to home page
+
+* Link to the report page for active event directly
+
 ### Add logo and icon for branding
 
 * Lightweight effort, easy HTML adjustments to templates. Logos available in Discord server.
