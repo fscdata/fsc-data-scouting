@@ -11,22 +11,23 @@
 * Lightweight effort, easy HTML adjustments to templates. Logos available in Discord server.
 * Make a favicon from minimal logo, adjust design of template to include logo on header of all pages.
 
-### Bring more color to the website
-
-* First year's focus was functionality, this year we want some more visual appeal.
-
 ### Additional graphs
 
 * Specific graphs/data to be prioritized by Scouting Alliance members.
 * Backend integration may get interesting based on multi-season transition of data fields, but this can still be started on.
+
+## Medium Term Projects
+
+### Bring more color to the website
+
+* First year's focus was functionality, this year we want some more visual appeal.
+* Need alliance input and iteration on designs/colors (Postpone until after SCRIW [Oct 2026])
 
 ### Include Statbotics EPA
 
 * Code changes are in place, but full implementation is **on hold** due to Statbotics bug.
   * Server is returning 500 to all requests, not just for our application.
 * Schema is in place in database.
-
-## Medium Term Projects
 
 ## Long Term Projects
 
