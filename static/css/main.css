@@ -74,12 +74,16 @@ select {
   font-size: x-large;
   color: white;
   margin-top: 1em;
+  border-radius: 0.5em;
+  padding: 0.5em;
 }
 .bigBlueButton {
   background-color: blue;
   font-size: x-large;
   color: white;
   margin-top: 1em;
+  border-radius: 0.5em;
+  padding: 0.5em;
 }
 .numbox {
   width: 3em;

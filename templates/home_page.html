@@ -2,6 +2,7 @@
 {% block content %}
     <h1>Welcome to the FIRST South Carolina Scouting Alliance!</h1>
     This is a site for collecting and analyzing data on FRC teams and matches.
+
     <br />
     <h4>Who are we?</h4>
     <p>FIRST Robotics Competition (FRC) teams in South Carolina have formed the Scouting Alliance to collect data on FRC teams and matches to help teams make informed decisions about their strategies and alliances. <strong>All data is freely available to any team that wants to use it.</strong></p>
@@ -10,8 +11,11 @@
     <p>Use the "Scout" page to submit data on matches you watch. Use the "Reports" page to view and analyze the data collected.</p>
 
     <h4>I'm looking for...</h4>
-    <p>We are actively developing tools and adding more information and statistics.</p>
-    
+
+    {% if active_event_id %}
+    <a href="report/event/{{active_event_id}}" class="bigBlueButton">Active Event Stats</a>
+    {% endif %}
+
     <ul>
         <li>Our Scouting Alliance participants have watched matches and compiled information for the event in the <a href="report/">Reports section</a>.</li>
         <li>For SC Charleston Qualifier, we have built <a href="https://docs.google.com/spreadsheets/d/10dh-e7bvZhVHxfObyJM3K90W9t6DiMH-01LyOUVFmJ4/edit?usp=sharing">a summary page with supporting stats</a> from other sources.</li>
