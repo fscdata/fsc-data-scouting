@@ -25,6 +25,11 @@
   text-align: left;
   font-family: Calibri, Helvetica, sans-serif;
 }
+.siteLogo {
+  height: 2em;
+  vertical-align: middle;
+  margin-right: 0.5em;
+}
 
 .infoDiv {
   /* width: 80%; */
