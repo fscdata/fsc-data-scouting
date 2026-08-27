@@ -1,0 +1,27 @@
+{% extends "base_admin.html" %}
+{% block content %}
+    <p><a href="/admin/maintenance_active_events">&larr; Back to Active Events Maintenance</a></p>
+    <h3>Edit Event</h3>
+
+    <div class="wrapperDiv">
+        <form action="/admin/update_event" method="POST">
+            <input type="hidden" name="event_id" value="{{ event.event_id }}">
+            <label for="event_year">Event Year</label>
+            <input type="text" id="event_year" name="event_year" value="{{ event.event_year }}" size="10" required>
+            <br /><br />
+            <label for="event_code">Event Abbreviation</label>
+            <input type="text" id="event_code" name="event_code" value="{{ event.event_code }}" size="10" required>
+            <br /><br />
+            <label for="event_code_tba">TBA Event Code</label>
+            <input type="text" id="event_code_tba" name="event_code_tba" value="{{ event.event_code_tba or '' }}" size="10">
+            <br /><br />
+            <label for="event_name">Event Name</label>
+            <input type="text" id="event_name" name="event_name" value="{{ event.event_name }}" size="30" required>
+            <br /><br />
+            <label for="event_date">Event Date (YYYY-MM-DD)</label>
+            <input type="text" id="event_date" name="event_date" value="{{ event.event_date }}" size="12" required>
+            <br /><br />
+            <input class="send" type="submit" value="SAVE CHANGES">
+        </form>
+    </div>
+{% endblock %}

@@ -32,9 +32,11 @@
         {% else %} [inactive]
         {% endif %}
         </span>
+        <a href="/admin/edit_event?event={{ event.event_id }}" class="send">Edit</a>
+
         <a href="/admin/update_events?event={{ event.event_id }}" class="send">Remove</a>
-        
-        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set 
+
+        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set
             {% if event.event_currently_active %}
             Inactive
             {% else %}

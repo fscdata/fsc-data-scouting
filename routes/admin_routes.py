@@ -495,6 +495,41 @@ def add_new_active_event():
         print(f' > Successfully added event to database')
         return redirect('/admin/maintenance_active_events')
 
+@bp.route("/edit_event")
+@basic_auth.required
+def edit_event():
+    event_id = request.args.get('event', 0)
+    event = db.session.query(Event).filter(Event.event_id == event_id).first()
+    if event is None:
+        print(f' > Event {event_id} not found in database')
+        return redirect('/admin/maintenance_active_events')
+    return render_template('admin/edit_event.html', event=event)
+
+@bp.route("/update_event", methods=['POST'])
+@basic_auth.required
+def update_event():
+    event_id = request.form.get('event_id', 0)
+    updated_event_data = {
+        'event_code': request.form.get('event_code', ''),
+        'event_code_tba': request.form.get('event_code_tba', '') or None,
+        'event_name': request.form.get('event_name', ''),
+        'event_date': request.form.get('event_date', ''),
+        'event_year': int(request.form.get('event_year', 2026)),
+    }
+
+    # Filter out keys that are not in the Event model
+    valid_keys = [c.name for c in Event.__table__.columns]
+    filtered_data = {k: v for k, v in updated_event_data.items() if k in valid_keys}
+
+    db.session\
+        .query(Event)\
+        .filter(Event.event_id == event_id)\
+        .update(filtered_data)
+    db.session.commit()
+
+    print(f' > Successfully updated event {event_id}')
+    return redirect('/admin/maintenance_active_events')
+
 @bp.route("/update_events")
 @basic_auth.required
 def update_events():
