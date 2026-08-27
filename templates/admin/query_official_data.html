@@ -1,5 +1,6 @@
 {% extends "base_admin.html" %}
 {% block content %}
+    <p><a href="/admin/">&larr; Back to Admin Navigation</a></p>
     <h3>Query Official Data from FIRST API</h3>
 
     <div class="infoDiv">
@@ -7,9 +8,13 @@
 
         <h3>Current Active Event: {{ active_event_data[0].event_code if active_event_data else "None" }}</h3>
 
-        <p>Push this button to fetch the official match schedule. CLICK ONLY ONCE PER EVENT.</p>
+        {% if message %}
+        <p style="font-weight: bold; color: {{ 'green' if message_status == 'success' else 'red' }};">{{ message }}</p>
+        {% endif %}
+
+        <p>Push this button to fetch the official match schedule. This can only succeed once per event.</p>
         <form action="/admin/trigger_query_schedule" method="get">
-            <button type="submit">Query Official Match Schedule Data</button>
+            <button type="submit" class="bigBlueButton">Query Official Match Schedule Data</button>
         </form>
 
         <p>Push this button ONCE after EACH match runs to update match results.</p>

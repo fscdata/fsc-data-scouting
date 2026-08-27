@@ -30,16 +30,34 @@ def get_api_token():
     return headers
 
 def api_call_schedule_data(event_year, match_level = 'Qualification'):
-    # push data to database for storage
-    # find active event in database and get event_id and event_code
-    event_id = db.session\
-        .query(Event.event_id)\
+    '''
+    Query the FIRST API for match schedule data for the active event and push it to the database.
+    Returns:
+        tuple(bool, str): whether the import succeeded, and a friendly message describing the outcome.
+    '''
+    # find active event in database
+    active_event = db.session\
+        .query(Event)\
         .filter(Event.event_currently_active == True)\
-        .scalar()
-    event_code = db.session\
-        .query(Event.event_code )\
-        .filter(Event.event_currently_active == True)\
-        .scalar()
+        .first()
+
+    if active_event is None:
+        message = 'No active event is set. Activate an event on the Active Events Maintenance page before importing a match schedule.'
+        print(f' ! {message}')
+        return False, message
+
+    event_id = active_event.event_id
+    event_code = active_event.event_code
+
+    # a schedule has already been imported for this event once MatchData rows exist for it
+    existing_match = db.session\
+        .query(MatchData.match_id)\
+        .filter(MatchData.event_id == event_id)\
+        .first()
+    if existing_match is not None:
+        message = f'Match schedule for event {event_code} was already imported and cannot be re-triggered. Contact the scouting programmer if it needs to be re-imported.'
+        print(f' ! {message}')
+        return False, message
 
     # call FIRST API to get match schedule data for the event
     match_schedule_url = f'{first_api_base_url}/{event_year}/matches/{event_code}?tournamentLevel={match_level}'
@@ -50,45 +68,56 @@ def api_call_schedule_data(event_year, match_level = 'Qualification'):
     schedule_response  = requests.get(match_schedule_url, headers=headers)
     print(f'Status Code: {schedule_response.status_code}')
     if not schedule_response.status_code == 200:
-        error_message = f'FIRST API call failed, status code {schedule_response.status_code}. FIND SCOUTING PROGRAMMER ASAP.'
-        print(f' !!! {error_message}')
-    if schedule_response.status_code == 200:
-        match_schedule_data = schedule_response.json()
-        for match in match_schedule_data['Matches']:
-            match_number = match['matchNumber']
-            print(f' > Processing match {match_number} from schedule data')
-            for i in range(6):
-                team_record = match['teams'][i]
-                # print(f"Station: {team_record['station']}, Team Number: {team_record['teamNumber']}")
-                if team_record['station'] == 'Red1':
-                    red_1_id = team_record['teamNumber']
-                elif team_record['station'] == 'Red2':
-                    red_2_id = team_record['teamNumber']
-                elif team_record['station'] == 'Red3':
-                    red_3_id = team_record['teamNumber']
-                elif team_record['station'] == 'Blue1':
-                    blue_1_id = team_record['teamNumber']
-                elif team_record['station'] == 'Blue2':
-                    blue_2_id = team_record['teamNumber']
-                elif team_record['station'] == 'Blue3':
-                    blue_3_id = team_record['teamNumber']
+        message = f'FIRST API call failed, status code {schedule_response.status_code}. The schedule was not imported; you can try again. FIND SCOUTING PROGRAMMER ASAP if this persists.'
+        print(f' !!! {message}')
+        return False, message
 
-            # structure data into MatchData object and push to database
-            match_record = MatchData(
-                event_id=event_id,
-                match_number=match_number,
-                match_type=match_level,
-                red_1_id=red_1_id,
-                red_2_id=red_2_id,
-                red_3_id=red_3_id,
-                blue_1_id=blue_1_id,
-                blue_2_id=blue_2_id,
-                blue_3_id=blue_3_id
-            )
+    match_schedule_data = schedule_response.json()
+    matches = match_schedule_data.get('Matches', [])
+    if not matches:
+        message = f'FIRST API returned no matches for event {event_code}. The schedule may not be published yet; try again later.'
+        print(f' ! {message}')
+        return False, message
 
-            db.session.add(match_record)
-            db.session.commit()
-            print(f' > Match data for match {match_number} successfully added to database.')
+    for match in matches:
+        match_number = match['matchNumber']
+        print(f' > Processing match {match_number} from schedule data')
+        for i in range(6):
+            team_record = match['teams'][i]
+            # print(f"Station: {team_record['station']}, Team Number: {team_record['teamNumber']}")
+            if team_record['station'] == 'Red1':
+                red_1_id = team_record['teamNumber']
+            elif team_record['station'] == 'Red2':
+                red_2_id = team_record['teamNumber']
+            elif team_record['station'] == 'Red3':
+                red_3_id = team_record['teamNumber']
+            elif team_record['station'] == 'Blue1':
+                blue_1_id = team_record['teamNumber']
+            elif team_record['station'] == 'Blue2':
+                blue_2_id = team_record['teamNumber']
+            elif team_record['station'] == 'Blue3':
+                blue_3_id = team_record['teamNumber']
+
+        # structure data into MatchData object and push to database
+        match_record = MatchData(
+            event_id=event_id,
+            match_number=match_number,
+            match_type=match_level,
+            red_1_id=red_1_id,
+            red_2_id=red_2_id,
+            red_3_id=red_3_id,
+            blue_1_id=blue_1_id,
+            blue_2_id=blue_2_id,
+            blue_3_id=blue_3_id
+        )
+
+        db.session.add(match_record)
+        db.session.commit()
+        print(f' > Match data for match {match_number} successfully added to database.')
+
+    message = f'Successfully imported match schedule ({len(matches)} matches) for event {event_code}.'
+    print(f' > {message}')
+    return True, message
 
 def find_next_match_to_query():
     event_id = db.session\
@@ -437,7 +466,7 @@ maintain Active Events table
 @basic_auth.required
 def admin_maintenance_active_events():
     print(' > Rendering admin active events maintenance page')
-    event_data = db.session.query(Event.event_id, Event.event_code, Event.event_name, Event.event_date, Event.event_currently_active).all()
+    event_data = db.session.query(Event.event_id, Event.event_code, Event.event_code_tba, Event.event_name, Event.event_date, Event.event_currently_active).all()
     return render_template('admin/maintenance_active_events.html', event_data=event_data)
 
 @bp.route("/addto_active_events", methods=['POST'])
@@ -447,6 +476,7 @@ def add_new_active_event():
         # capture fields from form
         new_event_data = {
             'event_code': request.form.get('event_code', ''),
+            'event_code_tba': request.form.get('event_code_tba', '') or None,
             'event_name': request.form.get('event_name', ''),
             'event_date': request.form.get('event_date', ''),
             'event_year': int(request.form.get('event_year', 2026)),
@@ -497,13 +527,17 @@ def toggle_active_events():
         print(f' > Successfully deactivated event {event_id}')
         return redirect('/admin/maintenance_active_events')
     if not event.event_currently_active:
-        # If the event is currently inactive, set it to active
+        # Only one event may be active at a time, so deactivate any others first
+        db.session\
+            .query(Event)\
+            .filter(Event.event_currently_active == True)\
+            .update({Event.event_currently_active: False})
         db.session\
             .query(Event)\
             .filter(Event.event_id == event_id)\
             .update({Event.event_currently_active: True})
         db.session.commit()
-        print(f' > Successfully activated event {event_id}')
+        print(f' > Successfully activated event {event_id} (all other events deactivated)')
         return redirect('/admin/maintenance_active_events')
 
 '''
@@ -582,9 +616,7 @@ def trigger_calculate_report_data():
     os.system(f'python "{script_path}"')
     return redirect('/admin/')
 
-@bp.route("/query_official_data")
-@basic_auth.required
-def trigger_query_official_data():
+def render_official_data_page(message=None, message_status=None):
     active_event_data = db.session\
         .query(Event.event_id, Event.event_code, Event.event_name, Event.event_date, Event.event_currently_active)\
         .filter(Event.event_currently_active == True)\
@@ -602,11 +634,17 @@ def trigger_query_official_data():
             MatchData.blue_rp)\
         .filter(MatchData.event_id.in_([event.event_id for event in active_event_data]))\
         .all()
-    # print(event_match_data)
     return render_template(
         'admin/query_official_data.html',
         active_event_data=active_event_data,
-        event_match_data=event_match_data)
+        event_match_data=event_match_data,
+        message=message,
+        message_status=message_status)
+
+@bp.route("/query_official_data")
+@basic_auth.required
+def trigger_query_official_data():
+    return render_official_data_page()
 
 @bp.route("/trigger_query_schedule")
 @basic_auth.required
@@ -617,10 +655,12 @@ def trigger_query_schedule():
         .scalar()
 
     print(' > Triggering job to query official match schedule data from FIRST API')
-    api_call_schedule_data(
+    success, message = api_call_schedule_data(
         event_year = active_event_year,
         match_level = 'Qualification')
-    return redirect('/admin/query_official_data')
+    return render_official_data_page(
+        message=message,
+        message_status='success' if success else 'error')
 
 @bp.route("/trigger_query_match_data")
 @basic_auth.required

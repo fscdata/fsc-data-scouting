@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+    <p><a href="/admin/">&larr; Back to Admin Navigation</a></p>
     <form action="/admin/adjust_data" method="POST" onsubmit="return validate()">
         <input type="hidden" name="original_match_record_id" value="{{fix_record_id}}" required>
         <input type="hidden" name="event_id" value="{{match_data.event_id}}" required>
