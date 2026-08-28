@@ -1,34 +1,71 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Welcome to the FIRST South Carolina Scouting Alliance!</h1>
-    This is a site for collecting and analyzing data on FRC teams and matches.
+    <p><em>Making data accessible to everyone</em></p>
+
+    <hr />
+    This is a site for collecting and analyzing data on FRC teams and
+    matches.
 
     <br />
     <h4>Who are we?</h4>
-    <p>FIRST Robotics Competition (FRC) teams in South Carolina have formed the Scouting Alliance to collect data on FRC teams and matches to help teams make informed decisions about their strategies and alliances.</p>
-    <p><strong>All our data is freely available to any team that wants to use it!</strong></p>
-    <p>Want to learn more? <strong><a href="https://discord.gg/AUd47mWZJ">Join our Discord server!</a></strong></p>
+    <p>
+        FIRST Robotics Competition (FRC) teams in South Carolina have
+        formed the Scouting Alliance to collect data on FRC teams and
+        matches to help teams make informed decisions about their
+        strategies and alliances.
+    </p>
+    <p>
+        <strong>All our data is freely available to any team that wants
+        to use it!</strong>
+    </p>
+    <p>
+        Want to learn more?
+        <strong><a href="https://discord.gg/AUd47mWZJ">Join our Discord
+        server!</a></strong>
+    </p>
 
     <h4>How do I use this tool?</h4>
-    <p>Use the "Scout" page to submit data on matches you watch. Use the "Reports" page to view and analyze the data collected.</p>
+    <p>
+        Use the "Scout" page to submit data on matches you watch. Use
+        the "Reports" page to view and analyze the data collected.
+    </p>
 
     <h4>I'm looking for...</h4>
 
     {% if active_event_id %}
-    <a href="report/event/{{active_event_id}}" class="bigBlueButton">Active Event Stats</a>
+    <a href="report/event/{{active_event_id}}" class="bigBlueButton">
+        Active Event Stats
+    </a>
     {% endif %}
 
     <ul>
-        <li>Our Scouting Alliance participants have watched matches and compiled information for the event in the <a href="report/">Reports section</a>.</li>
-        <li>For SC Charleston Qualifier, we have built <a href="https://docs.google.com/spreadsheets/d/10dh-e7bvZhVHxfObyJM3K90W9t6DiMH-01LyOUVFmJ4/edit?usp=sharing">a summary page with supporting stats</a> from other sources.</li>
-        <li>We've also got <a href="https://docs.google.com/spreadsheets/d/12JMm7Sw8NQbkUSKZ3bwrXUm5kI6eCN0zNNkjtomF9Cc/edit?usp=sharing">Pit Scouting data</a> to quickly reference team robot construction and capabilities.</p></li>
+        <li>
+            Our Scouting Alliance participants have watched matches and
+            compiled information for the event in the
+            <a href="report/">Reports section</a>.
+        </li>
+        <li>
+            For SC Charleston Qualifier, we have built
+            <a href="https://docs.google.com/spreadsheets/d/10dh-e7bvZhVHxfObyJM3K90W9t6DiMH-01LyOUVFmJ4/edit?usp=sharing">a
+            summary page with supporting stats</a> from other sources.
+        </li>
+        <!-- <li>We've also got <a href="https://docs.google.com/spreadsheets/d/12JMm7Sw8NQbkUSKZ3bwrXUm5kI6eCN0zNNkjtomF9Cc/edit?usp=sharing">Pit Scouting data</a> to quickly reference team robot construction and capabilities.</p></li> -->
     </ul>
 
     <h4>I have questions!</h4>
-    <p>If you can't find an answer in the <a href="/info/">Info section</a> of the site, reach out to the Scouting Alliance and we'll be happy to help.</p>
+    <p>
+        If you can't find an answer in the
+        <a href="/info/">Info section</a> of the site, reach out to the
+        Scouting Alliance and we'll be happy to help.
+    </p>
 
     <h4>I have thoughts!</h4>
 
-    <p><a href="https://forms.gle/C88Q7gjoJU8FVysv7" target="_blank">Fill out this form!</a></p>
+    <p>
+        <a href="https://forms.gle/C88Q7gjoJU8FVysv7" target="_blank">
+            Fill out this form!
+        </a>
+    </p>
     <img src="static/images/QR_FSC_Data_Feedback.png" width="200"/>
 {% endblock %}
