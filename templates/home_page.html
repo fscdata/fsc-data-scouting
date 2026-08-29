@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Welcome to the FIRST South Carolina Scouting Alliance!</h1>
+    <h1>FIRST South Carolina Scouting Alliance</h1>
     <p><em>Making data accessible to everyone</em></p>
 
     <hr />
-    This is a site for collecting and analyzing data on FRC teams and
-    matches.
 
-    <br />
     <h4>Who are we?</h4>
     <p>
         FIRST Robotics Competition (FRC) teams in South Carolina have
@@ -19,53 +16,58 @@
         <strong>All our data is freely available to any team that wants
         to use it!</strong>
     </p>
-    <p>
-        Want to learn more?
-        <strong><a href="https://discord.gg/AUd47mWZJ">Join our Discord
-        server!</a></strong>
-    </p>
 
-    <h4>How do I use this tool?</h4>
-    <p>
-        Use the "Scout" page to submit data on matches you watch. Use
-        the "Reports" page to view and analyze the data collected.
-    </p>
+    <hr />
 
     <h4>I'm looking for...</h4>
-
-    {% if active_event_id %}
-    <a href="report/event/{{active_event_id}}" class="bigBlueButton">
-        Active Event Stats
-    </a>
-    {% endif %}
-
     <ul>
+        {% if active_event_id %}
         <li>
-            Our Scouting Alliance participants have watched matches and
-            compiled information for the event in the
+            <a href="report/event/{{active_event_id}}" class="bigBlueButton">
+                Active Event Stats
+            </a>
+        </li>
+        {% endif %}
+        <li>
+            Compiled event statistics (historical):
             <a href="report/">Reports section</a>.
         </li>
         <li>
-            For SC Charleston Qualifier, we have built
+            SC Charleston Qualifier
             <a href="https://docs.google.com/spreadsheets/d/10dh-e7bvZhVHxfObyJM3K90W9t6DiMH-01LyOUVFmJ4/edit?usp=sharing">a
-            summary page with supporting stats</a> from other sources.
+            summary page with supporting stats</a>
         </li>
         <!-- <li>We've also got <a href="https://docs.google.com/spreadsheets/d/12JMm7Sw8NQbkUSKZ3bwrXUm5kI6eCN0zNNkjtomF9Cc/edit?usp=sharing">Pit Scouting data</a> to quickly reference team robot construction and capabilities.</p></li> -->
     </ul>
 
-    <h4>I have questions!</h4>
-    <p>
-        If you can't find an answer in the
-        <a href="/info/">Info section</a> of the site, reach out to the
-        Scouting Alliance and we'll be happy to help.
-    </p>
+    <h4>I have questions...</h4>
+    <ul>
+        <li>
+            <a href="/info/">Info Pages</a>
+        </li>
+        <li>
+            <strong><a href="https://discord.gg/AUd47mWZJ">Join our Discord
+            server!</a></strong>
+        </li>
+        <li>
+            <a href="mailto:fsc.scouting@gmail.com">Email the Scouting
+            Alliance</a> with questions
+        </li>
+    </ul>
 
-    <h4>I have thoughts!</h4>
 
-    <p>
-        <a href="https://forms.gle/C88Q7gjoJU8FVysv7" target="_blank">
-            Fill out this form!
-        </a>
-    </p>
+    <h4>I have feedback...</h4>
+    <ul>
+        <li>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdosTJAeNMTb-AZPDzB2jhbyN3t036t_qRdgBWgMg6gIOBQcQ/viewform?pli=1&chromeless=1&pli=1" target="_blank">
+                Scouting Alliance website feedback & suggestions
+            </a>
+        </li>
+        <li>
+            <a href="https://forms.gle/aekbWGKtoqZvMy657" target="_blank">
+                Event Feedback
+            </a>
+        </li>
+    </ul>
     <img src="static/images/QR_FSC_Data_Feedback.png" width="200"/>
 {% endblock %}

@@ -83,12 +83,16 @@ select {
   padding: 0.5em;
 }
 .bigBlueButton {
+  display: inline-block;
   background-color: blue;
   font-size: x-large;
   color: white;
-  margin-top: 1em;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
   border-radius: 0.5em;
   padding: 0.5em;
+  white-space: normal;
+  word-wrap: break-word;
 }
 .numbox {
   width: 3em;
