@@ -1,4 +1,5 @@
 import base64
+from collections import defaultdict
 from matplotlib.figure import Figure
 import csv
 from datetime import datetime
@@ -304,6 +305,13 @@ def report_team_page():
                         MatchTeamData.record_hidden == False)\
                     .all()
                 print(event_records)
+                
+                all_event_records = db.session\
+                    .query(MatchTeamData)\
+                    .filter(
+                        MatchTeamData.event_id == event_id,
+                        MatchTeamData.record_hidden == False)\
+                    .all()
                 team_climb_stats = calculate_climb_stats(event_records)
 
                 team_summary_data = db.session\
@@ -364,6 +372,21 @@ def report_team_page():
                 full_team_stats = pull_archived_stats(team_stats, event_id)
                 # print(full_team_stats)
 
+                matches_by_team = {}
+                for r in all_event_records:
+                    matches_by_team.setdefault(r.team_number, []).append(r)
+                for team in matches_by_team:
+                    matches_by_team[team].sort(key=lambda r: r.match_number)
+
+                max_matches = max(len(matches) for matches in matches_by_team.values())
+                event_average_scored = []
+                for i in range(max_matches):
+                    scores_at_index = []
+                    for matches in matches_by_team.values():
+                        if i < len(matches):
+                            scores_at_index.append(matches[i].auto_fuel_score + matches[i].teleop_fuel_score)
+                    event_average_scored.append(sum(scores_at_index) / len(scores_at_index))
+
                 fuel_scored = []
                 matches_played = []
                 count = 0
@@ -377,8 +400,22 @@ def report_team_page():
                 fig = Figure()
                 ax = fig.subplots()
                 ax.bar(matches_played, fuel_scored)
+                ax.plot(matches_played, event_average_scored[:len(matches_played)], color="red", marker="o", label="Event avg (per match)")
+                
+                for x, y in zip(matches_played, event_average_scored[:len(matches_played)]):
+                    ax.annotate(
+                        f"{y:.1f}",
+                        (x, y),
+                        textcoords="offset points",
+                        xytext=(0, 8),  # nudge the label up 8 points so it doesn't sit on top of the dot
+                        ha="center",
+                        fontsize=8,
+                        color="red"
+                    )
+                
                 ax.set_xlabel("Matches Played")
                 ax.set_ylabel("Fuel Scored")
+                ax.legend()
 
                 # Save to memory buffer
                 buf = BytesIO()
