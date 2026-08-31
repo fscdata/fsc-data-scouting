@@ -12,6 +12,7 @@ class Event(db.Model):
     __tablename__ = 'events'
     event_id = Column(Integer, primary_key=True)
     event_code = Column(String(10), nullable=False)
+    event_code_tba = Column(String(10), nullable=True)
     event_name = Column(String(100), nullable=False)
     event_date = Column(String(20), nullable=False)
     event_year = Column(Integer, nullable=False)

@@ -168,11 +168,12 @@ def do_some_math():
         db.session.commit()
 
         event_info = db.session\
-            .query(Event.event_year, Event.event_code)\
+            .query(Event.event_year, Event.event_code, Event.event_code_tba)\
             .filter(Event.event_id == event_id)\
             .first()
         if event_info:
-            event_key = f'{event_info.event_year}{event_info.event_code.lower()}'
+            tba_code = event_info.event_code_tba or event_info.event_code
+            event_key = f'{event_info.event_year}{tba_code.lower()}'
             print(f'> Fetching archived stats for event {event_key}')
             tba_stats = fetch_tba_event_stats(event_key)
             statbotics_epa = fetch_statbotics_epa(event_key)

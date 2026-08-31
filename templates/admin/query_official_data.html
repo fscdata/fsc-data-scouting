@@ -1,20 +1,29 @@
 {% extends "base_admin.html" %}
 {% block content %}
+    <p><a href="/admin/">&larr; Back to Admin Navigation</a></p>
     <h3>Query Official Data from FIRST API</h3>
 
     <div class="infoDiv">
-        <p>Use the buttons below to trigger background jobs to query official match schedule and match result data from the FIRST API for all active events. This will update the match schedule and match result data in the database with the official data from FIRST, which can be used to enhance the scouting data with official match times, opponent information, and climb data.</p>
+        <p>Use the buttons below to trigger background jobs to query official match schedule and match result data from the FIRST API for all active events. This will update the match schedule and match result data in the database with the official data from FIRST and The Blue Alliance.</p>
 
         <h3>Current Active Event: {{ active_event_data[0].event_code if active_event_data else "None" }}</h3>
 
-        <p>Push this button to fetch the official match schedule. CLICK ONLY ONCE PER EVENT.</p>
+        {% if message %}
+            <p style="font-weight: bold; color: {{ 'green' if message_status == 'success' else 'red' }};">{{ message }}</p>
+        {% endif %}
+
+        <p>Push this button to fetch the official match schedule. Only required ONCE per event.</p>
         <form action="/admin/trigger_query_schedule" method="get">
-            <button type="submit">Query Official Match Schedule Data</button>
+            <button type="submit" class="bigButton blueButton">
+                Query Official Match Schedule Data
+            </button>
         </form>
 
         <p>Push this button ONCE after EACH match runs to update match results.</p>
         <form action="/admin/trigger_query_match_data" method="get">
-            <button type="submit">Query Official Match Result Data</button>
+            <button type="submit" class="bigButton greenButton">
+                Update FRC-Events and TBA Match Result Data
+            </button>
         </form>
 
         <table>

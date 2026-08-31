@@ -1,5 +1,6 @@
 {% extends "base_admin.html" %}
 {% block content %}
+    <p><a href="/admin/">&larr; Back to Admin Navigation</a></p>
     <h3>Active Events Maintenance</h3>
 
     <div class="wrapperDiv">
@@ -16,6 +17,7 @@
         <form action="/admin/addto_active_events" method="POST" onsubmit="return validate()">
             <input type="text" name="event_year" placeholder="Event Year" size="10" required>
             <input type="text" name="event_code" placeholder="Event Abbreviation" size="10" required>
+            <input type="text" name="event_code_tba" placeholder="TBA Event Code" size="10">
             <input type="text" name="event_name" placeholder="Event Name" size="30" required>
             <input type="text" name="event_date" placeholder="Event Date (YYYY-MM-DD)" size="12" required>
         <input class="send" type="submit" value="ADD NEW EVENT">
@@ -25,14 +27,16 @@
 
         <h4>Events in Database</h4>
         {% for event in event_data %}
-        <span>Event <strong>{{ event.event_code }}</strong>: <em>{{ event.event_name }}</em> ({{ event.event_date }})
+        <span>Event <strong>{{ event.event_code }}</strong> (TBA: {{ event.event_code_tba or event.event_code }}): <em>{{ event.event_name }}</em> ({{ event.event_date }})
         {% if event.event_currently_active %} <strong>[ACTIVE]</strong> 
         {% else %} [inactive]
         {% endif %}
         </span>
+        <a href="/admin/edit_event?event={{ event.event_id }}" class="send">Edit</a>
+
         <a href="/admin/update_events?event={{ event.event_id }}" class="send">Remove</a>
-        
-        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set 
+
+        <a href="/admin/toggle_active_events?event={{ event.event_id }}" class="send">Set
             {% if event.event_currently_active %}
             Inactive
             {% else %}

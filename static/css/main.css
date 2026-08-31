@@ -74,21 +74,25 @@ select {
   font-size: large;
   background-color: transparent;
 }
-.bigRedButton {
-  background-color: red;
+.bigButton {
+  display: inline-block;
   font-size: x-large;
   color: white;
-  margin-top: 1em;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
   border-radius: 0.5em;
   padding: 0.5em;
+  white-space: normal;
+  word-wrap: break-word;
 }
-.bigBlueButton {
+.redButton {
+  background-color: red;
+}
+.blueButton {
   background-color: blue;
-  font-size: x-large;
-  color: white;
-  margin-top: 1em;
-  border-radius: 0.5em;
-  padding: 0.5em;
+}
+.greenButton {
+  background-color: green;
 }
 .numbox {
   width: 3em;
