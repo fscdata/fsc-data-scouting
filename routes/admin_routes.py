@@ -406,12 +406,10 @@ def enhance_match_team_data():
                 )
     db.session.commit()
 
-''' data QA helpers '''
-
-
-# fields compared to tell a "full" duplicate (identical scouting data, safe to
-# hide all but one) from a "partial" duplicate (same match/team, different data,
-# needs a human to pick which record is correct)
+'''
+data QA helpers
+'''
+# fields compared to tell a "full" vs "partial" duplicates
 DUPLICATE_COMPARISON_FIELDS = [
     'auto_fuel_score',
     'auto_climb_try',
@@ -534,9 +532,9 @@ def find_missing_reports(event_id):
                 })
     return missing
 
-''' app routes '''
-
-
+'''
+app routes
+'''
 @bp.route("/")
 @basic_auth.required
 def admin_index():
@@ -594,7 +592,13 @@ maintain Active Events table
 @basic_auth.required
 def admin_maintenance_active_events():
     print(' > Rendering admin active events maintenance page')
-    event_data = db.session.query(Event.event_id, Event.event_code, Event.event_code_tba, Event.event_name, Event.event_date, Event.event_currently_active).all()
+    event_data = db.session.query(
+        Event.event_id,
+        Event.event_code,
+        Event.event_code_tba,
+        Event.event_name,
+        Event.event_date,
+        Event.event_currently_active).all()
     return render_template('admin/maintenance_active_events.html', event_data=event_data)
 
 @bp.route("/addto_active_events", methods=['POST'])
@@ -833,7 +837,8 @@ def hide_the_bad():
                 .update({MatchTeamData.record_hidden: True})
         db.session.commit()
         # return redirect('/admin/data_adjustments')
-        return redirect('/admin/data_qa')
+        return redirect('/admin/' \
+        'data_qa')
 
 '''
 trigger backend / external data updates
@@ -850,7 +855,12 @@ def trigger_calculate_report_data():
 
 def render_official_data_page(message=None, message_status=None):
     active_event_data = db.session\
-        .query(Event.event_id, Event.event_code, Event.event_name, Event.event_date, Event.event_currently_active)\
+        .query(
+            Event.event_id,
+            Event.event_code,
+            Event.event_name,
+            Event.event_date,
+            Event.event_currently_active)\
         .filter(Event.event_currently_active == True)\
         .all()
     event_match_data = db.session\
