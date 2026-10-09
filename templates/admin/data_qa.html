@@ -1,0 +1,119 @@
+{% extends "base_admin.html" %}
+{% block content %}
+    <p><a href="/admin/">&larr; Back to Admin Navigation</a></p>
+    <h3>Data QA</h3>
+    <p>Checks run against the currently active event (Event ID {{ active_event_id }}) as of the last time this page was
+    loaded via the QA Check button. Duplicate reports are non-hidden scouting records that share the same match and team;
+    missing reports are alliance slots on matches with recorded official results that have no non-hidden scouting record.</p>
+
+    {% set full_duplicates = duplicate_reports|selectattr('duplicate_type', 'equalto', 'full')|list %}
+    {% set partial_duplicates = duplicate_reports|selectattr('duplicate_type', 'equalto', 'partial')|list %}
+
+    <h4>Full Duplicate Team Reports ({{ full_duplicates|length }})</h4>
+    <p>Same match, same team, identical scouting data in every record &mdash; safe to keep one and hide the rest.</p>
+    {% if full_duplicates %}
+    <table>
+        <thead>
+            <tr>
+                <th>Match</th>
+                <th>Team</th>
+                <th># Reports</th>
+                <th>Records</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dup in full_duplicates %}
+            <tr>
+                <td>{{ dup.match_number }}</td>
+                <td>{{ dup.team_number }}</td>
+                <td>{{ dup.report_count }}</td>
+                <td>
+                    {% for record_id in dup.record_ids %}
+                    <a href="/admin/data_adjustments?record={{ record_id }}">#{{ record_id }}</a>
+                    {% if not loop.first %}
+                        (<a href="/admin/hide?record={{ record_id }}">hide</a>)
+                    {% else %}
+                        (keep)
+                    {% endif %}
+                    {% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No full duplicate reports found for the active event.</p>
+    {% endif %}
+
+    <h4>Partial Duplicate Team Reports ({{ partial_duplicates|length }})</h4>
+    <p>Same match, same team, but the recorded data differs between reports &mdash; review the fields below and hide the
+    incorrect record(s).</p>
+    {% if partial_duplicates %}
+    {% for dup in partial_duplicates %}
+    <table>
+        <thead>
+            <tr>
+                <th colspan="{{ dup.records|length + 1 }}">Match {{ dup.match_number }}, Team {{ dup.team_number }}</th>
+            </tr>
+            <tr>
+                <th>Field</th>
+                {% for record in dup.records %}
+                <th>
+                    Record #{{ record.record_id }}
+                    &mdash; <a href="/admin/data_adjustments?record={{ record.record_id }}">edit</a>
+                    / <a href="/admin/hide?record={{ record.record_id }}">hide</a>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for field in [
+                'auto_fuel_score', 'auto_climb_try', 'auto_traveled',
+                'teleop_fuel_score', 'teleop_traveled', 'endgame_climb_try', 'endgame_climb_level', 'auto_climbed',
+                'alliance_human_fuel',
+                'strategy_active_scored', 'strategy_active_ferrying', 'strategy_active_defense',
+                'strategy_inactive_scored', 'strategy_inactive_ferrying', 'strategy_inactive_defense',
+                'strategy_defense_actions',
+                'match_tipped', 'match_broken', 'match_beached', 'match_carded', 'match_disabled', 'match_absent',
+                'record_ip_address'] %}
+            {% set values = dup.records|map(attribute=field)|list %}
+            <tr{% if values|unique|list|length > 1 %} class="reportTableAuto"{% endif %}>
+                <td>{{ field }}</td>
+                {% for value in values %}
+                <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br />
+    {% endfor %}
+    {% else %}
+    <p>No partial duplicate reports found for the active event.</p>
+    {% endif %}
+
+    <h4>Missing Team Reports ({{ missing_reports|length }})</h4>
+    {% if missing_reports %}
+    <table>
+        <thead>
+            <tr>
+                <th>Match</th>
+                <th>Station</th>
+                <th>Team</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for miss in missing_reports %}
+            <tr>
+                <td>{{ miss.match_number }}</td>
+                <td>{{ miss.station }}</td>
+                <td>{{ miss.team_number }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No missing reports found among played matches for the active event.</p>
+    {% endif %}
+{% endblock %}

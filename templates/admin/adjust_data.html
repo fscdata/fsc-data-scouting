@@ -6,6 +6,8 @@
         <thead>
             <tr>
                 <th>Record ID</th>
+                <th>Hidden from reports?</th>
+                <th>Needs To Be Hidden</th>
                 <th>Event ID</th>
                 <th>Match Number</th>
                 <th>Team Number</th>
@@ -34,8 +36,6 @@
                 <th>Calc Auto Score</th>
                 <th>Calc Teleop Score</th>
                 <th>Scouter IP Address</th>
-                <th>Hidden from reports?</th>
-                <th>Needs To Be Hidden</th>
             </tr>
         </thead>
         <tbody>
@@ -47,6 +47,17 @@
                         {{ record.record_id }}
                         </a>
                     </strong>
+                </td>
+                <td>{% if record.record_hidden is not none %}
+                        {{ record.record_hidden }}
+                    {% else %} -- {% endif %}
+                </td>
+                <td>
+                    <a href="/admin/hide?record={{record.record_id}}">
+                        {% if record.record_hidden %}Show
+                        {% else %}Hide
+                        {% endif %}Please
+                    </a>
                 </td>
                 <td>{{ record.event_id }}</td>
                 <td>{{ record.match_number }}</td>
@@ -173,17 +184,6 @@
                     {% if record.record_ip_address is not none %}
                         {{ record.record_ip_address }}
                     {% else %} -- {% endif %}
-                </td>
-                <td>{% if record.record_hidden is not none %}
-                        {{ record.record_hidden }}
-                    {% else %} -- {% endif %}
-                </td>
-                <td>
-                    <a href="/admin/hide?record={{record.record_id}}">
-                        {% if record.record_hidden %}Show
-                        {% else %}Hide
-                        {% endif %}Please
-                    </a>
                 </td>
             </tr>
             {% endfor %}

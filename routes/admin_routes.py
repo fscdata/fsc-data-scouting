@@ -406,6 +406,134 @@ def enhance_match_team_data():
                 )
     db.session.commit()
 
+''' data QA helpers '''
+
+
+# fields compared to tell a "full" duplicate (identical scouting data, safe to
+# hide all but one) from a "partial" duplicate (same match/team, different data,
+# needs a human to pick which record is correct)
+DUPLICATE_COMPARISON_FIELDS = [
+    'auto_fuel_score',
+    'auto_climb_try',
+    'auto_traveled',
+    'teleop_fuel_score',
+    'teleop_traveled',
+    'endgame_climb_try',
+    'endgame_climb_level',
+    'auto_climbed',
+    'alliance_human_fuel',
+    'strategy_active_scored',
+    'strategy_active_ferrying',
+    'strategy_active_defense',
+    'strategy_inactive_scored',
+    'strategy_inactive_ferrying',
+    'strategy_inactive_defense',
+    'strategy_defense_actions',
+    'match_tipped',
+    'match_broken',
+    'match_beached',
+    'match_carded',
+    'match_disabled',
+    'match_absent',
+]
+
+def find_duplicate_reports(event_id):
+    '''
+    Find matches/teams with more than one non-hidden MatchTeamData row for the given event.
+    Returns:
+        list[dict]: one entry per (match_number, team_number) with more than one report, tagged
+        as 'full' (every compared field is identical across records) or 'partial' (data differs),
+        along with the full record details needed to review/hide the offending row(s).
+    '''
+    if event_id is None:
+        return []
+
+    duplicate_groups = db.session\
+        .query(
+            MatchTeamData.match_number,
+            MatchTeamData.team_number,
+            db.func.count(MatchTeamData.record_id).label('report_count'))\
+        .filter(
+            MatchTeamData.event_id == event_id,
+            MatchTeamData.record_hidden == False)\
+        .group_by(MatchTeamData.match_number, MatchTeamData.team_number)\
+        .having(db.func.count(MatchTeamData.record_id) > 1)\
+        .order_by(MatchTeamData.match_number, MatchTeamData.team_number)\
+        .all()
+
+    duplicates = []
+    for match_number, team_number, report_count in duplicate_groups:
+        records = db.session\
+            .query(MatchTeamData)\
+            .filter(
+                MatchTeamData.event_id == event_id,
+                MatchTeamData.match_number == match_number,
+                MatchTeamData.team_number == team_number,
+                MatchTeamData.record_hidden == False)\
+            .order_by(MatchTeamData.record_id)\
+            .all()
+
+        signatures = {tuple(getattr(r, field) for field in DUPLICATE_COMPARISON_FIELDS) for r in records}
+        duplicate_type = 'full' if len(signatures) == 1 else 'partial'
+
+        duplicates.append({
+            'match_number': match_number,
+            'team_number': team_number,
+            'report_count': report_count,
+            'duplicate_type': duplicate_type,
+            'record_ids': [r.record_id for r in records],
+            'records': records,
+        })
+    return duplicates
+
+def find_missing_reports(event_id):
+    '''
+    Find alliance slots on played matches (official results recorded) with no non-hidden MatchTeamData row.
+    Returns:
+        list[dict]: one entry per missing (match_number, station, team_number).
+    '''
+    if event_id is None:
+        return []
+
+    # only consider matches that have actually been played, so an event's full schedule
+    # doesn't show as "missing" before matches happen
+    played_matches = db.session\
+        .query(MatchData)\
+        .filter(
+            MatchData.event_id == event_id,
+            MatchData.red_rp != None)\
+        .order_by(MatchData.match_number)\
+        .all()
+
+    reported_pairs = db.session\
+        .query(MatchTeamData.match_number, MatchTeamData.team_number)\
+        .filter(
+            MatchTeamData.event_id == event_id,
+            MatchTeamData.record_hidden == False)\
+        .all()
+    reported_set = set(reported_pairs)
+
+    missing = []
+    for match in played_matches:
+        alliance_slots = [
+            ('Red 1', match.red_1_id),
+            ('Red 2', match.red_2_id),
+            ('Red 3', match.red_3_id),
+            ('Blue 1', match.blue_1_id),
+            ('Blue 2', match.blue_2_id),
+            ('Blue 3', match.blue_3_id),
+        ]
+        for station, team_number in alliance_slots:
+            if team_number is None:
+                continue
+            if (match.match_number, team_number) not in reported_set:
+                missing.append({
+                    'match_number': match.match_number,
+                    'station': station,
+                    'team_number': team_number,
+                })
+    return missing
+
 ''' app routes '''
 
 
@@ -612,6 +740,74 @@ def risky_business():
             'admin/adjust_data.html',
             match_data=full_raw_data_query)
 
+@bp.route("/adjust_data", methods=['POST'])
+@basic_auth.required
+def update_match_team_data():
+    record_id = request.form.get('original_match_record_id')
+    if not record_id:
+        return redirect('/admin/data_adjustments')
+
+    form_dict = request.form.to_dict(flat=False)
+
+    def checkbox(field_name):
+        return field_name in form_dict
+
+    def text_flag(field_name):
+        # legacy free-text fields on this form that represent booleans
+        raw = request.form.get(field_name, '')
+        return raw.strip().lower() in ('1', 'true', 'yes', 'on')
+
+    def optional_int(field_name):
+        raw = request.form.get(field_name, '').strip()
+        return int(raw) if raw.isdigit() else None
+
+    updated_data = {
+        'match_number': optional_int('match_number'),
+        'team_number': optional_int('team_number'),
+        'auto_fuel_score': optional_int('auto_fuel_score'),
+        'auto_climb_try': text_flag('auto_climb_try'),
+        'auto_traveled': request.form.get('auto_traveled') or None,
+        'teleop_fuel_score': optional_int('teleop_fuel_score'),
+        'teleop_traveled': request.form.get('teleop_traveled') or None,
+        'endgame_climb_try': text_flag('endgame_climb_try'),
+        'strategy_active_scored': checkbox('active_scored'),
+        'strategy_active_ferrying': checkbox('active_ferrying'),
+        'strategy_active_defense': checkbox('active_defense'),
+        'strategy_inactive_scored': checkbox('inactive_scored'),
+        'strategy_inactive_ferrying': checkbox('inactive_ferrying'),
+        'strategy_inactive_defense': checkbox('inactive_defense'),
+        'strategy_defense_actions': optional_int('strat_defense'),
+        'match_tipped': checkbox('tipped'),
+        'match_broken': checkbox('broken'),
+        'match_beached': checkbox('beached'),
+        'match_carded': checkbox('carded'),
+        'match_disabled': checkbox('disabled'),
+        'match_absent': checkbox('absent'),
+    }
+
+    db.session\
+        .query(MatchTeamData)\
+        .filter(MatchTeamData.record_id == record_id)\
+        .update(updated_data)
+    db.session.commit()
+
+    print(f' > Successfully updated match team data record {record_id}')
+    return redirect(f'/admin/data_adjustments?record={record_id}')
+
+@bp.route("/data_qa")
+@basic_auth.required
+def admin_data_qa():
+    active_event_id = db.session\
+        .query(Event.event_id)\
+        .filter(Event.event_currently_active == True)\
+        .scalar()
+
+    return render_template(
+        'admin/data_qa.html',
+        active_event_id=active_event_id,
+        duplicate_reports=find_duplicate_reports(active_event_id),
+        missing_reports=find_missing_reports(active_event_id))
+
 @bp.route("/hide")
 @basic_auth.required
 def hide_the_bad():
@@ -636,7 +832,8 @@ def hide_the_bad():
                 .filter(MatchTeamData.record_id == hide_record_id)\
                 .update({MatchTeamData.record_hidden: True})
         db.session.commit()
-        return redirect('/admin/data_adjustments')
+        # return redirect('/admin/data_adjustments')
+        return redirect('/admin/data_qa')
 
 '''
 trigger backend / external data updates

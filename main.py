@@ -3,6 +3,7 @@ import urllib.parse
 
 from flask import Flask
 from flask_basicauth import BasicAuth
+from werkzeug.middleware.proxy_fix import ProxyFix
 # BasicAuth still imported here for type hints if needed (extensions initializes it)
 
 from flask_migrate import Migrate  # Add this import
@@ -36,6 +37,11 @@ def get_db_uri():
 
 ## Flask app setup and routes
 app = Flask(__name__)
+
+# In production this app sits behind a single reverse proxy hop (Cloud Run / App
+# Engine's load balancer), so request.remote_addr is the proxy's own IP for every
+# request unless we trust the X-Forwarded-For header it sets.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
 
 # print(get_db_uri())
 
